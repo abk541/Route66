@@ -155,6 +155,17 @@ const state = {
   renderContext: null,
 };
 
+const runtimeCache = {
+  dailySeries: new Map(),
+  productRows: new Map(),
+  employeeRows: new Map(),
+  staffingRange: new Map(),
+  summaries: new Map(),
+  comparisons: new Map(),
+  heatmaps: new Map(),
+  trends: new Map(),
+};
+
 const datasets = {
   live: attachDatasetLabel(window.__RESTAURANT_DATA__, "CSV Data"),
   mock: buildMockDataset(window.__RESTAURANT_DATA__),
@@ -348,39 +359,29 @@ function renderAll() {
   renderFilterDrawer();
   renderSelectedFilters();
   renderSearchSuggestions();
-  hydrateHeaderMeta(state.renderContext);
-  renderPresetCards();
-  renderDashboard(state.renderContext);
-  renderExplorer(state.renderContext);
-  renderHeatmap(state.renderContext);
-  renderTrend(state.renderContext);
-  renderMatrix(state.renderContext);
-  renderTransactions(state.renderContext);
-  renderEmployees(state.renderContext);
-  renderPurchasing();
-  renderRecipes(state.renderContext);
-  renderCosts(state.renderContext);
-  renderSettings();
+  hydrateHeaderMeta();
+  renderActivePage(state.renderContext);
 }
 
 function buildRenderContext() {
   const processed = currentProcessed();
   const filters = buildFilterState();
   const dailySeries = buildFilteredDailySeries(processed, filters, state.startDate, state.endDate);
-  const productRows = buildProductRows(processed, filters, state.startDate, state.endDate);
-  const categoryRows = aggregateRowsByKey(productRows, "category");
-  const employeeRows = buildEmployeeRows(processed, filters, state.startDate, state.endDate);
-  const staffingRange = buildActualStaffingRange(processed, state.startDate, state.endDate);
+  const productRows = needsProductRows(state.currentPage) ? buildProductRows(processed, filters, state.startDate, state.endDate) : [];
+  const employeeRows = needsEmployeeRows(state.currentPage) ? buildEmployeeRows(processed, filters, state.startDate, state.endDate) : [];
+  const staffingRange = needsStaffingRange(state.currentPage) ? buildActualStaffingRange(processed, state.startDate, state.endDate) : [];
   const summary = buildSummaryFromRange(processed, filters, state.startDate, state.endDate, {
     dailySeries,
-    productRows,
-    staffingRange,
+    productRows: productRows.length ? productRows : null,
+    staffingRange: staffingRange.length ? staffingRange : null,
   });
   const comparison = buildComparisonModel(processed, filters, summary, state.startDate, state.endDate);
-  const heatmap = buildHeatmapContext(processed);
-  const trend = buildTrendContext(processed, filters);
-  const matrix = buildMatrixContext(productRows);
-  const transactions = buildTransactionsContext(processed, filters, dailySeries);
+  const categoryRows = state.currentPage === "explorer" ? aggregateRowsByKey(productRows, "category") : [];
+  const heatmap = state.currentPage === "heatmap" ? buildHeatmapContext(processed) : { currentDays: [], compareDays: [] };
+  const trend = state.currentPage === "trends" ? buildTrendContext(processed, filters) : { buckets: [] };
+  const matrix = state.currentPage === "matrix" ? buildMatrixContext(productRows) : { rows: [], hiddenRows: [] };
+  const transactions =
+    state.currentPage === "transactions" ? buildTransactionsContext(processed, filters, dailySeries) : { rows: [], totals: {} };
 
   if (!state.selectedHeatmapDate && heatmap.currentDays[0]) {
     state.selectedHeatmapDate = heatmap.currentDays[0].date;
@@ -405,6 +406,46 @@ function buildRenderContext() {
     matrix,
     transactions,
   };
+}
+
+function renderActivePage(context) {
+  document.getElementById("preset-grid").style.display = state.currentPage === "dashboard" ? "grid" : "none";
+  if (state.currentPage === "dashboard") {
+    renderPresetCards();
+    renderDashboard(context);
+  } else if (state.currentPage === "explorer") {
+    renderExplorer(context);
+  } else if (state.currentPage === "heatmap") {
+    renderHeatmap(context);
+  } else if (state.currentPage === "trends") {
+    renderTrend(context);
+  } else if (state.currentPage === "matrix") {
+    renderMatrix(context);
+  } else if (state.currentPage === "transactions") {
+    renderTransactions(context);
+  } else if (state.currentPage === "employees") {
+    renderEmployees(context);
+  } else if (state.currentPage === "purchasing") {
+    renderPurchasing();
+  } else if (state.currentPage === "recipes") {
+    renderRecipes(context);
+  } else if (state.currentPage === "costs") {
+    renderCosts(context);
+  } else if (state.currentPage === "settings") {
+    renderSettings();
+  }
+}
+
+function needsProductRows(page) {
+  return ["dashboard", "explorer", "matrix", "recipes"].includes(page);
+}
+
+function needsEmployeeRows(page) {
+  return ["explorer", "employees"].includes(page);
+}
+
+function needsStaffingRange(page) {
+  return ["dashboard", "heatmap", "transactions", "employees"].includes(page);
 }
 
 function syncControls() {
@@ -448,7 +489,6 @@ function syncControls() {
     section.classList.toggle("active", section.dataset.view === state.currentPage);
   });
 
-  document.getElementById("preset-grid").style.display = state.currentPage === "dashboard" ? "grid" : "none";
 }
 
 function renderFilterDrawer() {
@@ -456,7 +496,7 @@ function renderFilterDrawer() {
   document.getElementById("toggle-filters").textContent = state.filtersOpen ? "Hide options" : "More options";
 }
 
-function hydrateHeaderMeta(context) {
+function hydrateHeaderMeta() {
   const data = currentDataset();
   document.getElementById("meta-dataset").textContent = data.meta.label;
   document.getElementById("meta-range").textContent = formatRange(state.startDate, state.endDate);
@@ -1882,6 +1922,10 @@ function buildCardModel(key, label) {
 }
 
 function buildSummaryFromRange(processed, filters, start, end, precomputed = null) {
+  const cacheKey = `${state.datasetKey}|summary|${state.revenueMode}|${start}|${end}|${serializeFilters(filters)}`;
+  if (!precomputed && runtimeCache.summaries.has(cacheKey)) {
+    return runtimeCache.summaries.get(cacheKey);
+  }
   const dailySeries = precomputed?.dailySeries || buildFilteredDailySeries(processed, filters, start, end);
   const productRows = precomputed?.productRows || buildProductRows(processed, filters, start, end);
   const staffingRange = precomputed?.staffingRange || buildActualStaffingRange(processed, start, end);
@@ -1926,7 +1970,7 @@ function buildSummaryFromRange(processed, filters, start, end, precomputed = nul
   const revenuePerEmployeeCents = employeeCount ? Math.round(displayRevenueCents / employeeCount) : 0;
   const revenuePerLaborHourCents = totalStaffHours ? Math.round(displayRevenueCents / totalStaffHours) : 0;
   const averageServiceMinutes = estimateServiceMinutes(orderCount, tables, itemsSold, rangeDays);
-  return {
+  const summary = {
     start,
     end,
     grossRevenueCents,
@@ -1964,11 +2008,21 @@ function buildSummaryFromRange(processed, filters, start, end, precomputed = nul
     averageServiceMinutes,
     rangeDays,
   };
+  if (!precomputed) {
+    runtimeCache.summaries.set(cacheKey, summary);
+  }
+  return summary;
 }
 
 function buildComparisonModel(processed, filters, summary, start, end) {
+  const cacheKey = `${state.datasetKey}|comparison|${state.compareMode}|${state.revenueMode}|${start}|${end}|${serializeFilters(filters)}`;
+  if (runtimeCache.comparisons.has(cacheKey)) {
+    return runtimeCache.comparisons.get(cacheKey);
+  }
   if (state.compareMode === "none") {
-    return { label: "No comparison", summary: emptyComparisonSummary() };
+    const result = { label: "No comparison", summary: emptyComparisonSummary() };
+    runtimeCache.comparisons.set(cacheKey, result);
+    return result;
   }
   const span = diffDays(fromIso(start), fromIso(end)) + 1;
   let compareStart;
@@ -1986,10 +2040,12 @@ function buildComparisonModel(processed, filters, summary, start, end) {
       : buildSummaryFromRange(processed, filters, compareStart, compareEnd);
   const base = compareSummary.grossRevenueCents;
   const delta = base ? (summary.grossRevenueCents - base) / base : 0;
-  return {
+  const result = {
     label: `${state.compareMode === "lastYear" ? "vs same period last year" : "vs previous period"} ${delta >= 0 ? "+" : ""}${(delta * 100).toFixed(1)}%`,
     summary: compareSummary,
   };
+  runtimeCache.comparisons.set(cacheKey, result);
+  return result;
 }
 
 function estimateServiceMinutes(orderCount, tables, itemsSold, rangeDays) {
@@ -2001,15 +2057,25 @@ function estimateServiceMinutes(orderCount, tables, itemsSold, rangeDays) {
 }
 
 function buildFilteredDailySeries(processed, filters, start, end) {
-  return processed.raw.daily
+  const cacheKey = `${state.datasetKey}|daily|${start}|${end}|${serializeFilters(filters)}`;
+  if (runtimeCache.dailySeries.has(cacheKey)) {
+    return runtimeCache.dailySeries.get(cacheKey);
+  }
+  const rows = processed.raw.daily
     .filter((item) => item.date >= start && item.date <= end)
     .map((item) => {
       const share = combinedShareForDate(processed, filters, item.date);
       return { ...scaleNumericRecord(item, share), date: item.date, __share: share };
     });
+  runtimeCache.dailySeries.set(cacheKey, rows);
+  return rows;
 }
 
 function buildProductRows(processed, filters, start, end) {
+  const cacheKey = `${state.datasetKey}|products|${start}|${end}|${serializeFilters(filters)}`;
+  if (runtimeCache.productRows.has(cacheKey)) {
+    return runtimeCache.productRows.get(cacheKey);
+  }
   const employeeShares = buildEmployeeShareByDate(processed, filters.employeeIds, start, end);
   const rows = [];
   processed.raw.productDaily.forEach((item) => {
@@ -2048,10 +2114,16 @@ function buildProductRows(processed, filters, start, end) {
       marginCents: netRevenueCents - foodCostCents - Math.round(netRevenueCents * 0.16),
     });
   });
-  return aggregateRowsByKey(rows, "id", { name: "name", articleNumber: "articleNumber", category: "category" });
+  const aggregated = aggregateRowsByKey(rows, "id", { name: "name", articleNumber: "articleNumber", category: "category" });
+  runtimeCache.productRows.set(cacheKey, aggregated);
+  return aggregated;
 }
 
 function buildEmployeeRows(processed, filters, start, end) {
+  const cacheKey = `${state.datasetKey}|employees|${start}|${end}|${serializeFilters(filters)}`;
+  if (runtimeCache.employeeRows.has(cacheKey)) {
+    return runtimeCache.employeeRows.get(cacheKey);
+  }
   const productShares = buildProductShareByDate(processed, filters, start, end);
   const rows = [];
   processed.raw.employeeDaily.forEach((item) => {
@@ -2083,19 +2155,31 @@ function buildEmployeeRows(processed, filters, start, end) {
       marginCents: Math.round(netRevenueCents * 0.52),
     });
   });
-  return aggregateRowsByKey(rows, "id", { name: "name", employeeNumber: "employeeNumber", group: "group" });
+  const aggregated = aggregateRowsByKey(rows, "id", { name: "name", employeeNumber: "employeeNumber", group: "group" });
+  runtimeCache.employeeRows.set(cacheKey, aggregated);
+  return aggregated;
 }
 
 function buildHeatmapContext(processed) {
+  const cacheKey = `${state.datasetKey}|heatmap|${state.rangePreset}|${state.startDate}|${state.endDate}`;
+  if (runtimeCache.heatmaps.has(cacheKey)) {
+    return runtimeCache.heatmaps.get(cacheKey);
+  }
   const dates = resolveHeatmapDates(processed);
-  return {
+  const context = {
     currentDays: dates.map((date) => buildPlanningDay(processed, date, false)),
     compareDays: dates.map((date) => buildPlanningDay(processed, toIso(addDays(fromIso(date), -364)), true)),
   };
+  runtimeCache.heatmaps.set(cacheKey, context);
+  return context;
 }
 
 function buildTrendContext(processed, filters) {
-  return {
+  const cacheKey = `${state.datasetKey}|trend|${state.trendGrouping}|${state.trendMetric}|${state.compareMode}|${state.revenueMode}|${state.startDate}|${state.endDate}|${serializeFilters(filters)}`;
+  if (runtimeCache.trends.has(cacheKey)) {
+    return runtimeCache.trends.get(cacheKey);
+  }
+  const context = {
     buckets: buildTrendBuckets(processed).map((bucket) => {
       const summary = buildSummaryFromRange(processed, filters, bucket.start, bucket.end);
         return {
@@ -2106,10 +2190,12 @@ function buildTrendContext(processed, filters) {
         };
       }),
     };
+  runtimeCache.trends.set(cacheKey, context);
+  return context;
 }
 
 function buildMatrixContext(productRows) {
-  const rows = productRows.filter((item) => !localModel.hiddenProducts.includes(item.id)).slice(0, 80);
+  const rows = productRows.filter((item) => !localModel.hiddenProducts.includes(item.id)).slice(0, 80).map((item) => ({ ...item }));
   const averageSales = rows.length ? sumBy(rows, (item) => item.grossRevenueCents) / rows.length : 0;
   const averageMargin = rows.length ? sumBy(rows, (item) => item.marginCents) / rows.length : 0;
   rows.forEach((row) => {
@@ -2456,7 +2542,13 @@ function seedExpenses() {
 }
 
 function buildActualStaffingRange(processed, start, end) {
-  return processed.raw.daily.filter((item) => item.date >= start && item.date <= end).map((item) => buildRosterSnapshot(item.date, item));
+  const cacheKey = `${state.datasetKey}|staffing|${start}|${end}`;
+  if (runtimeCache.staffingRange.has(cacheKey)) {
+    return runtimeCache.staffingRange.get(cacheKey);
+  }
+  const rows = processed.raw.daily.filter((item) => item.date >= start && item.date <= end).map((item) => buildRosterSnapshot(item.date, item));
+  runtimeCache.staffingRange.set(cacheKey, rows);
+  return rows;
 }
 
 function buildRosterSnapshot(date, baseDay, historicalMode) {
@@ -2501,6 +2593,14 @@ function currentDataset() {
 
 function currentProcessed() {
   return processedDatasets[state.datasetKey];
+}
+
+function serializeFilters(filters) {
+  return JSON.stringify({
+    productIds: [...filters.productIds].sort(),
+    employeeIds: [...filters.employeeIds].sort(),
+    categoryIds: [...filters.categoryIds].sort(),
+  });
 }
 
 function buildForecastCardSummary() {
