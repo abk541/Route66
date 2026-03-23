@@ -495,7 +495,10 @@ function renderPresetCards() {
 }
 
 function renderDashboard(context) {
-  document.getElementById("dashboard-kpi-list").innerHTML = buildKpiListMarkup(context.summary, context.comparison.summary);
+  document.getElementById("dashboard-kpi-list").innerHTML = buildDashboardKpiGroupsMarkup(
+    context.summary,
+    context.comparison.summary,
+  );
   document.getElementById("dashboard-main-table").innerHTML = buildDashboardTable(context.summary, context.comparison.summary);
   renderDashboardNote();
 }
@@ -724,33 +727,53 @@ function renderIngredientEditor() {
 }
 
 function buildKpiListMarkup(summary, compareSummary) {
-  return groupKpiItems(keyKpiItems(summary, compareSummary))
+  return keyKpiItems(summary, compareSummary)
     .map(
-      (group) => `
-        <section class="kpi-group">
-          <div class="kpi-group-head">
-            <p class="section-caption">${group.caption}</p>
-            <h4>${group.title}</h4>
+      (item) => `
+        <div class="kpi-item">
+          <div class="kpi-item-head">
+            <span class="kpi-label">${item.label}</span>
+            <span class="kpi-info" tabindex="0" aria-label="${escapeHtml(item.note)}" title="${escapeHtml(item.note)}">i</span>
           </div>
-          <div class="kpi-list">
-            ${group.items
-              .map(
-                (item) => `
-                  <div class="kpi-item">
-                    <div class="kpi-item-head">
-                      <span class="kpi-label">${item.label}</span>
-                      <span class="kpi-info" tabindex="0" aria-label="${escapeHtml(item.note)}" title="${escapeHtml(item.note)}">i</span>
-                    </div>
-                    <strong>${item.value}</strong>
-                  </div>
-                `,
-              )
-              .join("")}
-          </div>
-        </section>
+          <strong>${item.value}</strong>
+        </div>
       `,
     )
     .join("");
+}
+
+function buildDashboardKpiGroupsMarkup(summary, compareSummary) {
+  return `
+    <div class="dashboard-kpi-groups">
+      ${groupKpiItems(keyKpiItems(summary, compareSummary))
+        .map(
+          (group) => `
+            <section class="dashboard-kpi-group">
+              <div class="kpi-group-head">
+                <p class="section-caption">${group.caption}</p>
+                <h4>${group.title}</h4>
+              </div>
+              <div class="dashboard-kpi-grid">
+                ${group.items
+                  .map(
+                    (item) => `
+                      <div class="kpi-item">
+                        <div class="kpi-item-head">
+                          <span class="kpi-label">${item.label}</span>
+                          <span class="kpi-info" tabindex="0" aria-label="${escapeHtml(item.note)}" title="${escapeHtml(item.note)}">i</span>
+                        </div>
+                        <strong>${item.value}</strong>
+                      </div>
+                    `,
+                  )
+                  .join("")}
+              </div>
+            </section>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
 }
 
 function groupKpiItems(items) {
