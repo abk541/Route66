@@ -748,9 +748,8 @@ function buildDashboardKpiGroupsMarkup(summary, compareSummary) {
       ${groupKpiItems(keyKpiItems(summary, compareSummary))
         .map(
           (group) => `
-            <section class="dashboard-kpi-group">
+            <section class="dashboard-kpi-group dashboard-kpi-group-${group.key}">
               <div class="kpi-group-head">
-                <p class="section-caption">${group.caption}</p>
                 <h4>${group.title}</h4>
               </div>
               <div class="dashboard-kpi-grid">
@@ -781,7 +780,6 @@ function groupKpiItems(items) {
     {
       key: "sales",
       title: "Sales & Volume",
-      caption: "Turnover",
       labels: [
         "Revenue (Gross / Net)",
         "Items Sold",
@@ -794,7 +792,6 @@ function groupKpiItems(items) {
     {
       key: "guests",
       title: "Guests & Service",
-      caption: "Floor",
       labels: [
         "Number of Guests",
         "Number of Tables",
@@ -806,7 +803,6 @@ function groupKpiItems(items) {
     {
       key: "labour",
       title: "Labour & Staffing",
-      caption: "Team",
       labels: [
         "Employees Present",
         "Total Staff Hours",
@@ -822,7 +818,6 @@ function groupKpiItems(items) {
     {
       key: "profitability",
       title: "Costs & Profitability",
-      caption: "Margin",
       labels: [
         "Food Cost (Total & %)",
         "Custom / Indirect Cost %",
