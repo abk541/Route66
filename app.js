@@ -462,7 +462,6 @@ function hydrateHeaderMeta(context) {
   document.getElementById("meta-rows").textContent = numberFormatter.format(data.meta.rowsRead);
   document.getElementById("meta-products").textContent = numberFormatter.format(data.meta.uniqueProducts);
   document.getElementById("meta-staff").textContent = numberFormatter.format(data.meta.uniqueEmployees);
-  document.getElementById("dashboard-filter-summary").innerHTML = buildFilterSummaryMarkup(context.filters);
 }
 
 function renderPresetCards() {
@@ -728,9 +727,11 @@ function buildKpiListMarkup(summary, compareSummary) {
     .map(
       (item) => `
         <div class="kpi-item">
-          <span>${item.label}</span>
+          <div class="kpi-item-head">
+            <span class="kpi-label">${item.label}</span>
+            <span class="kpi-info" tabindex="0" aria-label="${escapeHtml(item.note)}" title="${escapeHtml(item.note)}">i</span>
+          </div>
           <strong>${item.value}</strong>
-          <small>${item.note}</small>
         </div>
       `,
     )
@@ -1330,20 +1331,6 @@ function buildSettingsSummary() {
     <div class="note-card"><strong>Accessible areas</strong><span>${pages.join(", ") || "No areas assigned."}</span></div>
     <div class="note-card"><strong>Lower-access preview</strong><span>Use the role selector in the top bar to demonstrate restricted heatmap / KPI access.</span></div>
   `;
-}
-
-function buildFilterSummaryMarkup(filters) {
-  const lines = [
-    "Restaurant: Daisy's Diner - Oyten",
-    `Role: ${ROLE_OPTIONS.find((item) => item.key === state.roleKey)?.label || state.roleKey}`,
-    `Revenue mode: ${state.revenueMode === "gross" ? "Gross Revenue" : "Net Revenue"}`,
-    `Comparison: ${document.getElementById("compare-mode")?.selectedOptions?.[0]?.textContent || "Do Not Compare"}`,
-    `Selected range: ${formatRange(state.startDate, state.endDate)}`,
-    state.appliedFilters.length
-      ? `Search filters: ${state.appliedFilters.map((item) => `${item.label} (${item.type})`).join(", ")}`
-      : "Search filters: none",
-  ];
-  return lines.map((line) => `<div class="note-card">${escapeHtml(line)}</div>`).join("");
 }
 
 function buildHistoryCards(title, rows) {
