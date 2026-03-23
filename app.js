@@ -1151,11 +1151,20 @@ function buildMatrixChart(matrix) {
   const padding = { top: 26, right: 22, bottom: 40, left: 42 };
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
-  const maxSales = Math.max(...matrix.rows.map((row) => row.grossRevenueCents), 1);
-  const minMargin = Math.min(...matrix.rows.map((row) => row.marginCents), 0);
-  const maxMargin = Math.max(...matrix.rows.map((row) => row.marginCents), 1);
-  const avgX = padding.left + (matrix.averageSales / maxSales) * innerWidth;
-  const avgY = padding.top + innerHeight - ((matrix.averageMargin - minMargin) / Math.max(maxMargin - minMargin, 1)) * innerHeight;
+  const visibleRows = matrix.rows.slice(0, 60);
+  const salesCeiling = percentile(visibleRows.map((row) => row.grossRevenueCents), 0.9) || 1;
+  const minMargin = Math.min(...visibleRows.map((row) => row.marginCents), 0);
+  const maxMargin = percentile(visibleRows.map((row) => row.marginCents), 0.92) || 1;
+  const avgX = padding.left + scaleMatrixSales(matrix.averageSales, salesCeiling) * innerWidth;
+  const avgY =
+    padding.top + innerHeight - scaleMatrixMargin(matrix.averageMargin, minMargin, maxMargin) * innerHeight;
+  const labeledProducts = new Set(
+    visibleRows
+      .slice()
+      .sort((a, b) => b.grossRevenueCents + b.marginCents - (a.grossRevenueCents + a.marginCents))
+      .slice(0, 8)
+      .map((row) => row.id),
+  );
 
   return `
     <svg viewBox="0 0 ${width} ${height}" aria-label="Product matrix">
@@ -1165,21 +1174,41 @@ function buildMatrixChart(matrix) {
       <line x1="${padding.left}" y1="${avgY}" x2="${padding.left + innerWidth}" y2="${avgY}" stroke="#586678" stroke-dasharray="6 6"></line>
       <text x="${padding.left}" y="${padding.top - 8}" fill="#98a1ad" font-size="12">Margin</text>
       <text x="${width - 80}" y="${height - 10}" fill="#98a1ad" font-size="12">Sales</text>
-      ${matrix.rows
-        .slice(0, 36)
+      ${visibleRows
         .map((row) => {
-          const x = padding.left + (row.grossRevenueCents / maxSales) * innerWidth;
-          const y = padding.top + innerHeight - ((row.marginCents - minMargin) / Math.max(maxMargin - minMargin, 1)) * innerHeight;
+          const x = padding.left + scaleMatrixSales(row.grossRevenueCents, salesCeiling) * innerWidth;
+          const y = padding.top + innerHeight - scaleMatrixMargin(row.marginCents, minMargin, maxMargin) * innerHeight;
+          const showLabel = labeledProducts.has(row.id);
           return `
             <g data-point-product="${row.id}">
-              <circle cx="${x}" cy="${y}" r="7" fill="${quadrantColor(row.quadrant)}" opacity="0.9"></circle>
-              <text x="${x}" y="${y - 10}" text-anchor="middle" fill="#cfd6df" font-size="10">${escapeHtml(trimLabel(row.name, 14))}</text>
+              <circle cx="${x}" cy="${y}" r="${showLabel ? 6 : 5}" fill="${quadrantColor(row.quadrant)}" opacity="${showLabel ? "0.92" : "0.72"}"></circle>
+              ${showLabel ? `<text x="${x}" y="${y - 10}" text-anchor="middle" fill="#cfd6df" font-size="10">${escapeHtml(trimLabel(row.name, 16))}</text>` : ""}
             </g>
           `;
         })
         .join("")}
     </svg>
   `;
+}
+
+function scaleMatrixSales(value, ceiling) {
+  const safeValue = Math.max(0, Math.min(value, ceiling));
+  return Math.log1p(safeValue) / Math.log1p(Math.max(ceiling, 1));
+}
+
+function scaleMatrixMargin(value, minMargin, maxMargin) {
+  const span = Math.max(maxMargin - minMargin, 1);
+  const safeValue = Math.max(minMargin, Math.min(value, maxMargin));
+  return (safeValue - minMargin) / span;
+}
+
+function percentile(values, fraction) {
+  if (!values.length) {
+    return 0;
+  }
+  const sorted = values.slice().sort((a, b) => a - b);
+  const index = Math.min(sorted.length - 1, Math.max(0, Math.floor((sorted.length - 1) * fraction)));
+  return sorted[index];
 }
 
 function buildHiddenProductsMarkup(matrix) {
