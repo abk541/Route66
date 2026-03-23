@@ -724,19 +724,99 @@ function renderIngredientEditor() {
 }
 
 function buildKpiListMarkup(summary, compareSummary) {
-  return keyKpiItems(summary, compareSummary)
+  return groupKpiItems(keyKpiItems(summary, compareSummary))
     .map(
-      (item) => `
-        <div class="kpi-item">
-          <div class="kpi-item-head">
-            <span class="kpi-label">${item.label}</span>
-            <span class="kpi-info" tabindex="0" aria-label="${escapeHtml(item.note)}" title="${escapeHtml(item.note)}">i</span>
+      (group) => `
+        <section class="kpi-group">
+          <div class="kpi-group-head">
+            <p class="section-caption">${group.caption}</p>
+            <h4>${group.title}</h4>
           </div>
-          <strong>${item.value}</strong>
-        </div>
+          <div class="kpi-list">
+            ${group.items
+              .map(
+                (item) => `
+                  <div class="kpi-item">
+                    <div class="kpi-item-head">
+                      <span class="kpi-label">${item.label}</span>
+                      <span class="kpi-info" tabindex="0" aria-label="${escapeHtml(item.note)}" title="${escapeHtml(item.note)}">i</span>
+                    </div>
+                    <strong>${item.value}</strong>
+                  </div>
+                `,
+              )
+              .join("")}
+          </div>
+        </section>
       `,
     )
     .join("");
+}
+
+function groupKpiItems(items) {
+  const groups = [
+    {
+      key: "sales",
+      title: "Sales & Volume",
+      caption: "Turnover",
+      labels: [
+        "Revenue (Gross / Net)",
+        "Items Sold",
+        "Cancelled Items",
+        "Average Order Value",
+        "Average Discounts per Day",
+        "Average Cancellations per Day",
+      ],
+    },
+    {
+      key: "guests",
+      title: "Guests & Service",
+      caption: "Floor",
+      labels: [
+        "Number of Guests",
+        "Number of Tables",
+        "Average Guests per Table",
+        "Revenue per Guest",
+        "Time from Order to Serving",
+      ],
+    },
+    {
+      key: "labour",
+      title: "Labour & Staffing",
+      caption: "Team",
+      labels: [
+        "Employees Present",
+        "Total Staff Hours",
+        "Staff Cost (Total & %)",
+        "Revenue per Employee (Total)",
+        "Productivity per Labour Hour",
+        "Average Staff per Day in the Kitchen",
+        "Average Staff per Day at the Bar",
+        "Average Staff per Day in Service",
+        "Average Staff per Day (Temporary / Support)",
+      ],
+    },
+    {
+      key: "profitability",
+      title: "Costs & Profitability",
+      caption: "Margin",
+      labels: [
+        "Food Cost (Total & %)",
+        "Custom / Indirect Cost %",
+        "Contribution Margin 1",
+        "Margin % | Total Margin",
+      ],
+    },
+  ];
+
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.labels
+        .map((label) => items.find((item) => item.label === label))
+        .filter(Boolean),
+    }))
+    .filter((group) => group.items.length);
 }
 
 function buildDashboardTable(summary, compareSummary) {

@@ -678,6 +678,28 @@ thead th,
   gap: 14px;
 }
 
+.dashboard-kpi-panel > .kpi-group + .kpi-group {
+  margin-top: 18px;
+}
+
+.kpi-group {
+  display: grid;
+  gap: 12px;
+}
+
+.kpi-group-head {
+  display: grid;
+  gap: 3px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.kpi-group-head h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .kpi-item {
   padding: 16px 18px;
   background: linear-gradient(180deg, rgba(17, 22, 29, 0.98), rgba(13, 18, 25, 0.98));
