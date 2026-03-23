@@ -82,6 +82,15 @@
           </label>
 
           <label class="control-select">
+            <span>Preset</span>
+            <select id="range-preset"></select>
+          </label>
+
+          <button id="toggle-filters" class="control-button">More options</button>
+        </div>
+
+        <div class="filter-drawer" id="filter-drawer">
+          <label class="control-select">
             <span>Revenue</span>
             <select id="revenue-mode">
               <option value="gross">Gross Revenue</option>
@@ -98,15 +107,6 @@
             </select>
           </label>
 
-          <label class="control-select">
-            <span>Preset</span>
-            <select id="range-preset"></select>
-          </label>
-
-          <button id="toggle-filters" class="control-button">Select Time Range</button>
-        </div>
-
-        <div class="filter-drawer" id="filter-drawer">
           <label class="control-select">
             <span>Start</span>
             <input id="start-date" type="date" />

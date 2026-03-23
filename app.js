@@ -453,6 +453,7 @@ function syncControls() {
 
 function renderFilterDrawer() {
   document.getElementById("filter-drawer").classList.toggle("open", state.filtersOpen);
+  document.getElementById("toggle-filters").textContent = state.filtersOpen ? "Hide options" : "More options";
 }
 
 function hydrateHeaderMeta(context) {

@@ -107,6 +107,7 @@ textarea {
 
 .topbar {
   padding: 14px 16px 16px;
+  background: linear-gradient(180deg, rgba(24, 29, 37, 0.98), rgba(22, 27, 35, 0.98));
 }
 
 .topbar-main,
@@ -250,6 +251,7 @@ thead th,
   justify-content: flex-end;
   flex: 0 1 auto;
   min-width: 0;
+  gap: 8px;
 }
 
 .top-select,
@@ -267,7 +269,7 @@ thead th,
   width: 100%;
   min-height: 42px;
   padding: 10px 14px;
-  background: #10151c;
+  background: rgba(16, 21, 28, 0.72);
   border: 1px solid var(--line);
   border-radius: 6px;
   color: var(--text);
@@ -288,9 +290,9 @@ thead th,
   display: inline-flex;
   gap: 4px;
   padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #11161d;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(17, 22, 29, 0.78);
 }
 
 .dataset-button,
@@ -309,6 +311,7 @@ thead th,
   background: transparent;
   color: var(--muted);
   white-space: nowrap;
+  border-radius: 999px;
 }
 
 .dataset-button:hover,
@@ -362,6 +365,8 @@ thead th,
 .search-row {
   margin-top: 14px;
   align-items: flex-start;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .search-panel {
@@ -408,6 +413,11 @@ thead th,
 
 .selected-filter-row {
   margin-top: 10px;
+  min-height: 18px;
+}
+
+.selected-filter-row.is-empty {
+  display: none;
 }
 
 .chip-strip,
@@ -447,10 +457,14 @@ thead th,
 
 .control-row {
   margin-top: 14px;
+  padding: 12px;
+  background: rgba(16, 21, 28, 0.42);
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
 }
 
 .control-row > .control-select {
-  flex: 1 1 180px;
+  flex: 1 1 220px;
 }
 
 .filter-drawer {
@@ -460,9 +474,9 @@ thead th,
   gap: 12px;
   align-items: end;
   flex-wrap: wrap;
-  background: var(--shell-alt);
+  background: rgba(15, 20, 27, 0.7);
   border: 1px solid var(--line-soft);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .filter-drawer.open {
@@ -472,21 +486,34 @@ thead th,
 .status-row {
   margin-top: 12px;
   align-items: stretch;
+  gap: 8px;
 }
 
 .status-chip {
-  min-width: 140px;
-  flex: 1 1 140px;
-  padding: 10px 12px;
-  background: var(--shell-alt);
-  border: 1px solid var(--line-soft);
-  border-radius: 6px;
+  min-width: 0;
+  flex: 0 1 auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.status-chip::after {
+  content: "•";
+  margin-left: 8px;
+  color: var(--line-strong);
+}
+
+.status-chip:last-child::after {
+  display: none;
 }
 
 .status-chip strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.95rem;
+  display: inline;
+  margin-top: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cfd6df;
 }
 
 .dashboard-main {
