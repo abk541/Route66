@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restaurant Performance Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-main">
+          <div class="brand-cluster">
+            <div class="brand-mark">route66 board</div>
+
+            <div class="page-heading">
+              <span class="page-label">Restaurant intelligence</span>
+              <strong id="page-title">Dashboard</strong>
+            </div>
+
+            <label class="top-select mobile-page-picker" for="mobile-page-select">
+              <span>Page</span>
+              <select id="mobile-page-select"></select>
+            </label>
+
+            <nav class="primary-nav" aria-label="Primary">
+              <button class="nav-link active" data-page="dashboard">Dashboard</button>
+              <button class="nav-link" data-page="explorer">Explorer</button>
+              <button class="nav-link" data-page="heatmap">Heatmap</button>
+              <button class="nav-link" data-page="trends">Trends</button>
+              <button class="nav-link" data-page="matrix">Product Matrix</button>
+              <button class="nav-link" data-page="transactions">POS Transactions</button>
+              <button class="nav-link" data-page="employees">Employees</button>
+              <button class="nav-link" data-page="purchasing">Purchasing</button>
+              <button class="nav-link" data-page="recipes">Recipes</button>
+              <button class="nav-link" data-page="costs">Indirect Expenses</button>
+              <button class="nav-link" data-page="settings">Settings</button>
+            </nav>
+          </div>
+
+          <div class="topbar-actions">
+            <label class="top-select">
+              <span>Role</span>
+              <select id="role-select"></select>
+            </label>
+
+            <div class="demo-switcher">
+              <button class="dataset-button active" data-dataset="live">CSV Data</button>
+              <button class="dataset-button" data-dataset="mock">Mock Demo</button>
+            </div>
+
+            <div class="user-pill">demo@route66</div>
+          </div>
+        </div>
+
+        <div class="search-row">
+          <div class="search-panel">
+            <label class="search-shell" for="search-input">
+              <span class="visually-hidden">Search and filter</span>
+              <input
+                id="search-input"
+                type="search"
+                autocomplete="off"
+                placeholder="Search products, article numbers, product groups, employees, or employee numbers"
+              />
+            </label>
+            <div class="suggestions-shell" id="search-suggestions"></div>
+          </div>
+
+          <button id="apply-search" class="control-button primary">Filter</button>
+        </div>
+
+        <div class="selected-filter-row">
+          <div class="chip-strip" id="selected-filters"></div>
+          <button id="clear-search" class="link-button">Clear filters</button>
+        </div>
+
+        <div class="control-row">
+          <label class="control-select">
+            <span>Restaurant</span>
+            <select id="restaurant-select"></select>
+          </label>
+
+          <label class="control-select">
+            <span>Revenue</span>
+            <select id="revenue-mode">
+              <option value="gross">Gross Revenue</option>
+              <option value="net">Net Revenue</option>
+            </select>
+          </label>
+
+          <label class="control-select">
+            <span>Comparison</span>
+            <select id="compare-mode">
+              <option value="none">Do Not Compare</option>
+              <option value="previous">Compare with Previous Period</option>
+              <option value="lastYear">Compare with Same Period Last Year</option>
+            </select>
+          </label>
+
+          <label class="control-select">
+            <span>Preset</span>
+            <select id="range-preset"></select>
+          </label>
+
+          <button id="toggle-filters" class="control-button">Select Time Range</button>
+        </div>
+
+        <div class="filter-drawer" id="filter-drawer">
+          <label class="control-select">
+            <span>Start</span>
+            <input id="start-date" type="date" />
+          </label>
+
+          <label class="control-select">
+            <span>End</span>
+            <input id="end-date" type="date" />
+          </label>
+
+          <label class="control-select">
+            <span>Sort</span>
+            <select id="table-sort">
+              <option value="marginCents">Margin</option>
+              <option value="grossRevenueCents">Revenue</option>
+              <option value="units">Units</option>
+              <option value="orders">Orders</option>
+              <option value="tables">Tables</option>
+              <option value="canceledUnits">Cancelled</option>
+            </select>
+          </label>
+
+          <button id="apply-range" class="control-button primary">Apply</button>
+          <button id="reset-range" class="control-button">Reset</button>
+        </div>
+
+        <div class="status-row">
+          <article class="status-chip">
+            <span>Dataset</span>
+            <strong id="meta-dataset">CSV Data</strong>
+          </article>
+          <article class="status-chip">
+            <span>Coverage</span>
+            <strong id="meta-range">Loading...</strong>
+          </article>
+          <article class="status-chip">
+            <span>Rows</span>
+            <strong id="meta-rows">0</strong>
+          </article>
+          <article class="status-chip">
+            <span>Products</span>
+            <strong id="meta-products">0</strong>
+          </article>
+          <article class="status-chip">
+            <span>Staff</span>
+            <strong id="meta-staff">0</strong>
+          </article>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <section class="metric-strip" id="preset-grid"></section>
+
+        <section class="workspace-panel">
+          <section class="workspace-view active" data-view="dashboard">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Overview</p>
+                <h2>Most important KPIs</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid dashboard-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">KPI summary</p>
+                    <h3>Performance snapshot</h3>
+                  </div>
+                </div>
+                <div id="dashboard-kpi-list" class="kpi-list"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Current filters</p>
+                    <h3>Selected analysis scope</h3>
+                  </div>
+                </div>
+                <div id="dashboard-filter-summary" class="note-stack"></div>
+              </article>
+
+              <article class="panel wide-panel dashboard-note-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Dashboard notes</p>
+                    <h3>Saved management comment for this period</h3>
+                  </div>
+                </div>
+                <div class="panel-grid detail-grid">
+                  <label class="control-select fill-width">
+                    <span>Free text field</span>
+                    <textarea id="dashboard-note-input" rows="4" placeholder="Context for this selected range, campaign note, holiday, event, staffing reminder..."></textarea>
+                  </label>
+                  <div class="note-editor">
+                    <button id="save-dashboard-note" class="control-button primary" type="button">Save dashboard note</button>
+                    <div id="dashboard-note-status" class="note-stack"></div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="panel wide-panel dashboard-table-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Margin overview</p>
+                    <h3>Most important KPIs</h3>
+                  </div>
+                </div>
+                <div id="dashboard-main-table" class="table-shell"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="explorer">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Revenue explorer</p>
+                <h2 id="explorer-title">Products</h2>
+              </div>
+
+              <div class="section-tabs" id="explorer-modes">
+                <button class="mode-switch active" data-mode="products">Products</button>
+                <button class="mode-switch" data-mode="categories">Product Groups</button>
+                <button class="mode-switch" data-mode="team">Employees</button>
+              </div>
+            </div>
+
+            <div class="summary-row" id="explorer-summary"></div>
+            <div id="explorer-table" class="table-shell"></div>
+          </section>
+
+          <section class="workspace-view" data-view="heatmap">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Staff utilization</p>
+                <h2 id="heatmap-range-title">Upcoming week vs same week last year</h2>
+              </div>
+
+              <div class="segmented-control" id="heatmap-metric-switch">
+                <button class="heat-switch active" data-metric="staffCostPercent">Staff Cost %</button>
+                <button class="heat-switch" data-metric="guests">Guests</button>
+                <button class="heat-switch" data-metric="tables">Tables</button>
+              </div>
+            </div>
+
+            <div class="panel-grid heatmap-layout">
+              <article class="panel">
+                <div class="panel-header compact">
+                  <div>
+                    <p class="section-caption" id="heatmap-current-caption">Current planning week</p>
+                    <h3 id="heatmap-current-title">This period</h3>
+                  </div>
+                </div>
+                <div id="heatmap-current-table" class="table-shell"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header compact">
+                  <div>
+                    <p class="section-caption" id="heatmap-compare-caption">Reference week</p>
+                    <h3 id="heatmap-compare-title">Same week last year</h3>
+                  </div>
+                </div>
+                <div id="heatmap-compare-table" class="table-shell"></div>
+              </article>
+            </div>
+
+            <article class="panel detail-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="section-caption">Day detail</p>
+                  <h3 id="heatmap-detail-title">Select a day</h3>
+                </div>
+                <div class="status-badge" id="note-status">No note</div>
+              </div>
+
+              <div class="panel-grid detail-grid">
+                <div id="day-detail-kpis" class="kpi-list"></div>
+
+                <div class="note-editor">
+                  <label class="control-select fill-width">
+                    <span>Saved comment</span>
+                    <textarea id="day-note-input" rows="6" placeholder="Start of vacation, public holiday, bridge day..."></textarea>
+                  </label>
+                  <button id="save-day-note" class="control-button primary">Save comment</button>
+                </div>
+              </div>
+
+              <div id="day-staff-lists" class="note-stack"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="section-caption">Rule-based heat map</p>
+                  <h3>Target range: 19-21%</h3>
+                </div>
+              </div>
+              <div class="heatmap-legend" id="heatmap-legend"></div>
+              <div class="heatmap-grid" id="heatmap-grid"></div>
+            </article>
+          </section>
+
+          <section class="workspace-view" data-view="trends">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Single KPI trend</p>
+                <h2>Trend analysis</h2>
+              </div>
+
+              <div class="toolbar-group">
+                <label class="control-select">
+                  <span>KPI</span>
+                  <select id="trend-metric-select"></select>
+                </label>
+
+                <label class="control-select">
+                  <span>Grouping</span>
+                  <select id="trend-preset-select"></select>
+                </label>
+              </div>
+            </div>
+
+            <article class="panel">
+              <div id="trend-chart" class="chart-shell"></div>
+              <div id="trend-summary" class="trend-summary"></div>
+            </article>
+
+            <div class="panel-grid trend-detail-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Selected period</p>
+                    <h3 id="trend-detail-title">Click a period in the chart</h3>
+                  </div>
+                </div>
+                <div id="trend-detail-panel" class="kpi-list"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Table update</p>
+                    <h3>Relevant KPIs for the selected period</h3>
+                  </div>
+                </div>
+                <div id="trend-detail-table" class="table-shell"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="matrix">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Product comparison</p>
+                <h2>Eisenhower matrix</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid matrix-grid">
+              <article class="panel">
+                <div id="matrix-chart" class="chart-shell matrix-shell"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Visibility</p>
+                    <h3>Hide selected products</h3>
+                  </div>
+                </div>
+                <div id="hidden-products" class="note-stack"></div>
+                <div id="matrix-summary" class="note-stack"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="transactions">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">POS transactions</p>
+                <h2>Transfers, corrections, and cancellations</h2>
+              </div>
+            </div>
+
+            <div id="transactions-summary" class="summary-row"></div>
+            <div id="transactions-table" class="table-shell"></div>
+          </section>
+
+          <section class="workspace-view" data-view="employees">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Employees</p>
+                <h2>Performance, wages, and groups</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Employee table</p>
+                    <h3>Current hourly wage and group assignment</h3>
+                  </div>
+                </div>
+                <div id="employees-table" class="table-shell"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Edit employee</p>
+                    <h3>Changes only apply from the selected date onward</h3>
+                  </div>
+                </div>
+                <form id="employee-form" class="form-grid">
+                  <label class="control-select">
+                    <span>Employee</span>
+                    <select id="employee-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Group</span>
+                    <select id="employee-group-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Hourly wage (EUR)</span>
+                    <input id="employee-wage-input" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="control-select">
+                    <span>Effective from</span>
+                    <input id="employee-effective-date" type="date" />
+                  </label>
+                  <label class="control-select full-span">
+                    <span>Free text field</span>
+                    <textarea id="employee-note-input" rows="3"></textarea>
+                  </label>
+                  <button id="save-employee" type="button" class="control-button primary">Save employee update</button>
+                </form>
+                <div id="employee-history" class="note-stack"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="purchasing">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Purchasing / ingredients</p>
+                <h2>Ingredient prices with history</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Ingredients</p>
+                    <h3>Ingredient Group (Warengruppe)</h3>
+                  </div>
+                </div>
+                <div id="purchasing-table" class="table-shell"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Update price</p>
+                    <h3>Historical prices stay unchanged</h3>
+                  </div>
+                </div>
+                <form class="form-grid" id="ingredient-form">
+                  <label class="control-select">
+                    <span>Ingredient</span>
+                    <select id="ingredient-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Ingredient Group</span>
+                    <input id="ingredient-group-input" type="text" />
+                  </label>
+                  <label class="control-select">
+                    <span>Unit</span>
+                    <select id="ingredient-unit-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Purchase cost (EUR)</span>
+                    <input id="ingredient-price-input" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="control-select">
+                    <span>Valid from</span>
+                    <input id="ingredient-effective-date" type="date" />
+                  </label>
+                  <button id="save-ingredient" type="button" class="control-button primary">Save price update</button>
+                </form>
+                <div id="ingredient-history" class="note-stack"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="recipes">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Food recipes and consumption</p>
+                <h2>Recipe costing</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Recipe builder</p>
+                    <h3>Create or update menu item recipes</h3>
+                  </div>
+                </div>
+                <form class="form-grid" id="recipe-form">
+                  <label class="control-select">
+                    <span>Menu item</span>
+                    <select id="recipe-product-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Ingredient</span>
+                    <select id="recipe-ingredient-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Unit</span>
+                    <select id="recipe-unit-select"></select>
+                  </label>
+                  <label class="control-select">
+                    <span>Quantity</span>
+                    <input id="recipe-quantity-input" type="number" min="0" step="0.0001" />
+                  </label>
+                  <button id="add-recipe-line" type="button" class="control-button">Add line</button>
+                  <button id="save-recipe" type="button" class="control-button primary">Save recipe</button>
+                </form>
+                <div id="recipe-lines" class="note-stack"></div>
+                <div class="summary-row">
+                  <button id="open-recipe-cost" class="control-button">Open purchase cost detail</button>
+                </div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Consumption</p>
+                    <h3>Expected vs actual ingredient usage</h3>
+                  </div>
+                </div>
+                <div id="consumption-table" class="table-shell"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="costs">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Indirect expenses</p>
+                <h2>Dailyized operating costs</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Expense table</p>
+                    <h3>Recurring and one-time expenses</h3>
+                  </div>
+                </div>
+                <div id="expenses-table" class="table-shell"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Add expense</p>
+                    <h3>Optional depreciation for investments</h3>
+                  </div>
+                </div>
+                <form class="form-grid" id="expense-form">
+                  <label class="control-select">
+                    <span>Label</span>
+                    <input id="expense-label-input" type="text" />
+                  </label>
+                  <label class="control-select">
+                    <span>Category</span>
+                    <input id="expense-category-input" type="text" />
+                  </label>
+                  <label class="control-select">
+                    <span>Amount (EUR)</span>
+                    <input id="expense-amount-input" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="control-select">
+                    <span>Frequency</span>
+                    <select id="expense-frequency-select">
+                      <option value="daily">Daily</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="annual">Annual</option>
+                      <option value="one-time">One-time</option>
+                    </select>
+                  </label>
+                  <label class="control-select">
+                    <span>Depreciation (months)</span>
+                    <input id="expense-depreciation-input" type="number" min="0" step="1" />
+                  </label>
+                  <button id="save-expense" type="button" class="control-button primary">Save expense</button>
+                </form>
+              </article>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view="settings">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Settings</p>
+                <h2>User access and permissions</h2>
+              </div>
+            </div>
+
+            <div class="panel-grid">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Role matrix</p>
+                    <h3>Grant access to individual areas</h3>
+                  </div>
+                </div>
+                <div id="permissions-table" class="table-shell"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="section-caption">Role preview</p>
+                    <h3>Current demo role behavior</h3>
+                  </div>
+                </div>
+                <div id="settings-summary" class="note-stack"></div>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <footer class="footer-strip">
+          Local-only demo build. Notes, wages, recipe changes, expenses, permissions, and mock-only features are saved in the browser for presentation purposes.
+        </footer>
+      </main>
+    </div>
+
+    <div class="modal-shell hidden" id="app-modal">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="section-caption" id="modal-caption">Details</p>
+            <h3 id="modal-title">Details</h3>
+          </div>
+          <button class="icon-button" id="close-modal" type="button">Close</button>
+        </div>
+        <div id="modal-body" class="modal-body"></div>
+      </div>
+    </div>
+
+    <script src="./data/live-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

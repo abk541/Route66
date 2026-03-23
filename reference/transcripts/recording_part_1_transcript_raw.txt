@@ -1,0 +1,338 @@
+LANGUAGE: en
+LANGUAGE_PROBABILITY: 0.9761093854904175
+
+[00:00-00:12] Okay, so I think for first of all, I think it's good when I show you sellable. This is like my
+[00:13-00:19] this, this is where I have all the ideas how I would like to have it because this is what I also
+[00:19-00:25] taught you that from the UI UX part, I think it looks really nice. And this is my dashboard where
+[00:25-00:30] I can see everything about the e-commerce stuff. And I really like the dashboard and this is why
+[00:30-00:38] I try to get all the information or all my ideas from this dashboard. And all my screenshots are
+[00:38-00:47] also coming from this dashboard. And I try to take this I tried to take this dashboard for e-commerce
+[00:47-00:53] and I will try to bring it into a restaurant dashboard. And what you can see here, I think
+[00:53-01:16] it's good when I when I show it. And so what you can see here, this is like the real dashboard.
+[01:17-01:25] Same one as you can see here. Okay. So this is my dashboard here in sellable. And you can
+[01:25-01:33] see here I feel like different kind of how I can look at the data. So I feel like the
+[01:34-01:38] word is I don't know the English word for this, but this means that I can see the revenue from
+[01:38-01:45] today from yesterday from the whole month from last month. And then I can hear change the time
+[01:45-01:51] period. So I have a few different options how I can see the time period. And I also can
+[01:52-01:58] make my time period how I want to see it. And the really good thing is I can also
+[01:59-02:06] benchmark it with last year. So I can benchmark it and then I can see here
+[02:06-02:12] how was the revenue one year ago. And I can not only see the revenue in total, I can also see
+[02:12-02:22] the difference of percentage, how the revenue is moving from the percentage part. And I also can
+[02:22-02:29] see some more interesting data. And when I go then here, I have a few different kind of options,
+[02:29-02:36] how I can see on the different way the data. So I feel like a graphic option. And then I can see
+[02:36-02:44] here all the data like this one. Or I can have here like a give us a good one for this question
+[02:44-02:48] with German word for it. I don't know the English word, but I can also see here all the
+[02:48-02:58] data in kind of which month. And then I have here like a heat map. I can make the heat map on or I
+[02:58-03:03] can make it out. And then I can see on one view what kind of data are good and what kind of data are
+[03:03-03:10] bad. And I can see here this in different kind of versions. And this is the one part of the
+[03:10-03:15] dashboard and the part here is the second part. And this is like, not from the
+[03:17-03:23] whole perspective, so not from the birth perspective. So so in German, it means like
+[03:23-03:29] full perspective. So I go a little bit deeper in the company. And then I can see the different
+[03:29-03:34] the single products. And then I can see from the products, the KPI. So what I can see, like,
+[03:34-03:39] if we take yesterday, so I can see yesterday, the whole revenue was this, but from the
+[03:39-03:44] product part, I have here different products and every product makes different revenues
+[03:44-03:50] and kind of stuff. And I can benchmark the products between each other. And I can also
+[03:50-03:57] change this one here. And then I just don't see the products. I see all the orders that I got.
+[03:57-04:02] And my idea for the gastronomy dashboard is that I can see here, like I can see,
+[04:02-04:11] I can benchmark the people that are working. So like employees, but I will also benchmark the
+[04:11-04:17] products and I also benchmark the product group. So I will take a look. And what kind of revenue
+[04:17-04:23] is making the dessert and what kind of revenue is making the burgers or the shakes or the
+[04:23-04:28] limonettes. This is for me, a product group. And the single products, I will also
+[04:28-04:33] benchmark the single product so that I can see here, okay, what does the product that we are
+[04:33-04:39] selling at best yesterday for this example. And then I can try to filter this on and then I can
+[04:39-04:44] see, oh, okay, we have a hamburger. This was our best seller yesterday and we sell it like
+[04:45-04:51] 20 times or 40 times or something like this. And this is from the dashboard from
+[04:51-04:56] Celebot how I can explain it for the gastronomy side. And now I can show you how I will,
+[04:57-05:06] I would try to show it to you in the mock-up. So you can see here. First of all, here's like the,
+[05:07-05:12] I don't know the English word, but in German it's like Inhaltsverzeichnis or where you can see all
+[05:12-05:19] the different kind of stuff. This is not, yeah, the naming is not right. And because this is
+[05:19-05:24] just a screenshot of how I like the UI UX from this. And the right namings are here on the
+[05:24-05:30] left side. And this is how you can see what is my idea, how it goes through with the mock-up. So
+[05:30-05:35] you can see here, I start here with the dashboard. And the second step is Receptor. And then comes
+[05:35-05:43] Wageneinkau, then comes Verbräuche, then comes Indirekte Ausgaben, and so on. And the last part
+[05:43-05:51] is like Einstellungen. Is it possible to make those menus in English? At least for me,
+[05:51-05:55] so I can understand why it built in. I can understand what everything is. Otherwise...
+[05:57-06:04] Yeah, yeah, of course. Of course, I can try to, so in my part of view, we have two different options.
+[06:04-06:10] So option one is I go through and make everywhere a comment and translate it in English.
+[06:10-06:15] Okay. And then you check and then you can see everything in English. Option two is you check
+[06:15-06:20] it and what you don't understand, you can go to a translator and then you can put it in.
+[06:21-06:27] Or better for you if I translate it. Yes, please. At least we know we have the common understanding
+[06:27-06:34] of what every menu will be. Yeah. Just for the menus or for all this stuff?
+[06:34-06:38] Maybe for the menus first. For the menus first. For the rest, I'll try to figure it out,
+[06:38-06:46] not sure. Okay. So if this is okay for you, I will start with explaining about the dashboard
+[06:46-06:55] and then I go through to the other parts. Okay. So as you can see here, this is the dashboard view
+[06:55-07:09] and you can see here. I start with this one that I will show you. I will have here a point where
+[07:09-07:17] I can make the option to make net and cross sales so that I can change the whole dashboard
+[07:17-07:23] in between from net and cross sales and that I can see what is the brutal and net revenue. So
+[07:23-07:30] German word for this. So when I click on cross sales, then I have the sales including the
+[07:30-07:36] maverick and when I go to net sales, then the maverick goes down. You know what I mean?
+[07:37-07:44] Yeah. So for the net sales, it takes the gross sales minus what? Minus the payroll,
+[07:44-07:51] the expenses or what? Minus the percentage for selling. So there's a German word,
+[07:51-08:07] it's maverick. Wait. VAT. Yes, I see. Yeah. But we have in Germany, we have different VATs,
+[08:07-08:12] but I can give you a screenshot from chat. You can explain it. So we have different
+[08:12-08:21] VATs for like drinks and for eats and also for takeaway. So we have three different VATs.
+[08:22-08:31] Okay. So net sales, does it include VAT or exclude VAT? And so net sales is,
+[08:33-08:38] I think it's better when I give you the German words for then and then I explain it.
+[08:40-08:49] Wait, I make me a comment here. Then I, yes. Net home, that's okay, but I will.
+[08:57-09:02] So okay. So this is the first thing that I want to have in the dashboard. This is not,
+[09:03-09:07] I don't have it here in Sellerbott. Here's everything including the revenue,
+[09:07-09:11] but you can see here when I see the revenue and he put it away in this,
+[09:16-09:21] in this Umsatzsteuer VAT and then he put it away here, but I will have it like
+[09:22-09:27] between each other and then I will have here like something like this and then I can make,
+[09:28-09:31] do you know what I mean? Click on it and then I have different data.
+[09:37-09:44] Okay. So then I think this kind of view, how I have it here today, yesterday, current month
+[09:44-09:49] and last month, I think current month pro knows this is, I think a lot of work because you
+[09:50-10:06] have to work with like, as you say, wahrscheinlich, because if you, if you will calculate the current
+[10:06-10:10] months, I don't know, you have to see what is the revenue from last month. I don't know if this is
+[10:10-10:16] easy to show it, but I think it's not so necessary for me. For me, it's more important last month
+[10:17-10:23] and I have, I will have here the different kind of options. So I can see this week, last week,
+[10:23-10:29] the week before, four weeks ago. So these are different time options that I can use.
+[10:29-10:36] So, you know, for the options for the daytime frames in Power BI, the selection is a bit basic.
+[10:36-10:41] It just lets you choose the start date and the end date. For example, if you go to the right side of
+[10:41-10:49] your, of your Figma Mocha, go to the other side. Yeah, right there where you have selects
+[10:49-10:54] under selects period. So Power BI will just give you the two input boxes on the top where you enter
+[10:54-10:59] the first start date and then the last date of the report that you want to look at. And then
+[11:00-11:07] you can manually pick any timeframe you want, one week, one month, one year, a few weeks, etc.
+[11:07-11:12] Is it also possible to have it like here? Like this one that I can see different because then
+[11:12-11:18] I can benchmark. This part is possible. Those cards are possible. It's just the selection. This
+[11:18-11:22] what you are looking at right now, what you're trying to select, you cannot have those predefined
+[11:22-11:27] periods. You will just have start date and date and you'll pick the timeframe that you want.
+[11:28-11:32] Okay. And it's not possible to change this here with one.
+[11:32-11:36] If not, unfortunately, it does not have this type of feature where you can select
+[11:36-11:40] predefined timeframes. So it just gives you a calendar with the start date and end date
+[11:40-11:49] and you pick the dates from there. Okay, then I would say we make it like we make today.
+[11:49-11:56] Yesterday, then we make last week, the week before, and then we make last month and this
+[11:56-12:01] month. Then we have a little bit more of these, but then I have it, then I can benchmark
+[12:01-12:06] everything what is important. You know what I mean? Yeah. Okay. Yeah. Today, yesterday,
+[12:06-12:09] this week, last week, this month, last month, something like that.
+[12:10-12:15] Yeah. Okay. Okay. Fine. Then it's fine. Is it also possible to
+[12:16-12:24] to make here the benchmarking between last year? That's an advanced feature. I can see how to
+[12:24-12:32] implement it. I can think of it. Yeah. Okay. So this is what I mean here with this dashboard.
+[12:32-12:40] And then I hear, here you also have, I can see, I saw it in other Power BI dashboard
+[12:40-12:44] to show me that you can click here on all restaurants because now we just have the
+[12:44-12:49] date designer. So now we have just one restaurant, but maybe in the future we have a second one.
+[12:50-12:56] But maybe you can bring it in, but for now it's just the date designer. Okay.
+[12:58-13:08] And then I have here the option to, okay, this is here the search bar and the search bar is
+[13:08-13:12] not just for this one. The search bar is more for this part here, but I can explain it now.
+[13:13-13:20] So I have been here different kind of benchmarking
+[13:21-13:35] table. Yeah. So at the end, it's a table here. And I will have different kind of tables. So I will
+[13:35-13:43] have here the product table, the product group table and the employee table. So I can benchmark
+[13:43-13:48] the employee. Employee. So this is the name from the employee. The name is now Hamadi.
+[13:48-13:53] And I will now hear how much he gets per hour. And then this is the number of his,
+[13:54-14:04] the German word is Kenanoma. Yeah. Seller number. Yeah. This is his own number for login in the
+[14:04-14:14] Casa in the chat. Yeah. I don't know. Is cash register the right word or what is the right word?
+[14:14-14:18] Cash register. Yeah, that makes sense. Cash register. Okay.
+[14:18-14:23] So this is his own number to log in in the cash register system. So this is also important here.
+[14:23-14:29] And then I will have here like his his revenue. Then I will have here this how many units he's
+[14:29-14:39] selling in the day. So like yesterday or the day that I have put here. And then the so different
+[14:39-14:45] KPIs I will benchmark here. So I think in the end we can show how we can bring all the KPIs
+[14:45-14:56] here inside. But as you can see here, so if I if I take a look for today, then I can see here
+[14:56-15:01] all the all the benchmarks, you know what I mean? And if I if I show from yesterday,
+[15:01-15:06] then I have here all the benchmarks from yesterday. And when I click on current months,
+[15:06-15:12] then I have all the bench benchmarks from all the data from the whole month. So he
+[15:12-15:17] bring all this together. And what could also be important for me here is a search bar. And
+[15:17-15:23] if I go in the search bar, I will like for example, I have dog supplements and then I go to
+[15:25-15:38] supplements. So for example, I have here all my products. And if I click on it,
+[15:39-15:45] I can just see this four products. And then I go here to filter. And then I just can see here
+[15:45-15:52] down all the different data for this kind of product that I pick on here. And this is my
+[15:52-15:59] idea to see when I just so when I have here, how many then I put here, how many in it?
+[16:00-16:05] For example, how many and then I click on how many and then I can see how much revenue he's making
+[16:07-16:11] today, yesterday, the whole month. And then I go pick and how many and it is
+[16:11-16:18] like competitor employee, like it's Daniel. And then I put put in it how many and Daniel.
+[16:18-16:22] So like this is Hamadi and this is Daniel and then I filtered and then I can see
+[16:23-16:29] which employee is better. You know what I mean? Yes, yes. In Power BI things will work slightly
+[16:29-16:34] differently. But I just want to say that this seller board that you're showing me,
+[16:34-16:38] it looks sophisticated. It looks really sophisticated. It has a lot of features.
+[16:38-16:43] I just want to manage expectations. And I'm not sure we will implement all the features that
+[16:43-16:48] you have in seller board because I'm pretty sure it took them more than few weeks to build
+[16:48-16:52] this whole platform, this whole seller board app. If you see what I mean?
+[16:55-17:02] But I'll try to make it as close as possible in terms of usability. A question for you. So
+[17:02-17:08] when we build these cards, what metrics are we going to display here? So basically just gross
+[17:08-17:12] sales and maybe net sales or what other metrics should we display here?
+[17:13-17:21] No, the metrics for this is here. I showed here our tradition, showed here. So here revenue and then
+[17:21-17:28] I have here verkaufsartikel, schon jetteartikel, gestartischanzahl, bestellwert, mitarbeiterkosten,
+[17:28-17:34] barrenkosten, deckensbeitrag. Okay, I honestly have no idea what this means. If only if only
+[17:34-17:43] it was all in English, I would definitely help. And so this is and so here's the revenue
+[17:43-17:52] and then how many units he's selling? How many stores? I don't know the English word.
+[17:57-18:17] Canceled items. Then how many guests, how many tables he's, we have the average order
+[18:17-18:29] value, AOV. And so this is average order value, AOV, then this is the total cost for the employees.
+[18:29-18:38] So at the end, we have like a table where we have all the how many euros he gets per hour.
+[18:38-18:42] And then you can see in the cash register system, you can see
+[18:43-18:50] all the employees who are working from this to this hour, and then you can multiply it by the
+[18:50-18:55] revenue per hour. And then you have the total cost for employees for the day or for the
+[18:55-19:08] for the months. Know what I mean? And then we have here the percentage for the
+[19:08-19:21] Varen cost. So like cost of goods. And at the end, I have like a deckensbeitrag is like
+[19:28-19:34] contribution margin. So this is not the real margin. So this is the first step for the margin.
+[19:34-19:39] So when I put when I have the margin number one, like deckensbeitrag number one, then I see
+[19:40-19:43] the cost for the employees goes away and for the goods goes away. But at the end,
+[19:43-19:47] I have like fixed costs and the fixed cost goes also away. And then at the end,
+[19:47-19:51] I have the margin. But the general word for this is deckensbeitrag. But at the end,
+[19:51-19:58] it's like the revenue minus the cost for employees, the cost for goods. And then I have the
+[19:58-20:02] deckensbeitrag. And do you think we have all this information coming from
+[20:04-20:14] from the APIs of Falke Kasen? Yes, like, so like 50%. Yes, I would say definitely.
+[20:14-20:21] And the other 50% is coming from here, from the, from the Varen einkauf. And at the end,
+[20:21-20:26] from the Verbräuche and from the mid-arbeiter, because at the end, we have here the mid-arbeiter
+[20:26-20:35] and then we put in how many, what is the payment for the, for the employees, so mid-arbeiter's
+[20:35-20:40] employees. And at the end, I can put here inside like Hamadi gets like 50 euros per hour. And
+[20:40-20:46] then you can see at the cash register system, you can see Hamadi is working yesterday from like
+[20:47-20:52] eight o'clock to, from eight AM to eight PM. And then you know, okay, so he's working so many
+[20:52-20:58] hours and you multiply it by his, how he gets per hour. And then you know what he gets for the
+[20:58-21:04] day. Because probably the data that I'm getting from, from the cash register for now, it's
+[21:04-21:09] basically just the items that were ordered. It's basically just the transactions. I don't
+[21:09-21:15] see, for example, when, when an employee clocked in and clocked out, if they started the day, for
+[21:15-21:21] example, at nine AM or if they started at 10 AM, I would just see the first transaction happened
+[21:21-21:30] for them at maybe 10, 15 minutes AM. So I'm not sure we have the clock in and clock out in,
+[21:30-21:39] in the cash register. Okay, I will ask because our employees go into the cash register system
+[21:39-21:45] and goes out at the end. And we exactly know how many hours they are working because they go into
+[21:45-21:52] the cash register system. So the data have to be there. Yeah. But I can ask them maybe, maybe he
+[21:52-22:00] have to give you more access or he also give you another CS file data. Yeah, yeah, he can confirm
+[22:00-22:06] if the information is already there, where to find it or if he needs to provide a different file.
+[22:06-22:11] Yeah. And even this part, you know, this part now that we're talking about using the second system,
+[22:11-22:15] what is that second system where you manage the payroll, how much every person gets paid
+[22:18-22:25] at the bottom? Yeah, yeah. Do you think it's good to, to go into this and then in this or we
+[22:25-22:31] may, oh no, okay, let's go ahead. But I can try to be a little bit faster. Yeah, let's go faster.
+[22:31-22:38] Okay. Okay. And so you have here is like different kind of tables where you can
+[22:39-22:43] benchmark different things. So you can benchmark here like a product, you can have
+[22:43-22:48] benchmark product groups and then you can benchmark here like employees. And this is
+[22:48-22:53] like the dashboard. But if you click here on like a different view of the dashboard,
+[22:53-22:58] this is what I show you here. The next one is like graphic. And, and this is what I
+[22:58-23:01] try to show you here when you go to this one, you have a different kind of
+[23:01-23:06] how you can see the data. And if you go here to trends, you have also another different way how
+[23:06-23:13] you can see the data. So this is what I try to show you here. So this is graphic. So this is
+[23:13-23:19] when you go here into graphics, you can see like, you can see like this one here. And
+[23:20-23:25] at the end, you can filter here into different KPIs. And then you can see. So for example,
+[23:25-23:31] in the, this one, you will, you will see the revenue and you can, you will see the cost for
+[23:31-23:36] the employees. And then you can see here, like this is the revenue, like here's revenue. And
+[23:36-23:41] this is the cost for employees. So for example, I can see how, how is the revenue going and how
+[23:41-23:48] is the cost for the employees going, or what, what kind of, what kind of KPIs I will benchmark
+[23:48-23:52] between each other. So, but this is a different kind of power can view it. And for me,
+[23:52-23:58] it's really important because I can see it in monthly base. So I can see the, how is the revenue
+[23:58-24:22] and how is the cost for employees. So if, if I, if I take a look, this is just for two products,
+[24:22-24:27] but now for all the products you can see here in the seller dashboard. If it's important
+[24:27-24:33] for you, I can also give you access for the seller dashboard. Maybe you can, you can see some,
+[24:34-24:39] you can click on it and you can see what is happening here when it's important for you.
+[24:42-24:53] Okay. Okay. So this is what I will have here in graphics. And then I have here the guiou file.
+[24:53-24:57] And so I will have here all the KPIs and then I will have here all the months with the heat map.
+[24:57-25:02] This is what I show you here. It's a little bit slowly. Sorry for that. But
+[25:05-25:10] maybe the guiou file is working. So I have here a different kind of how I can see the data. So
+[25:10-25:14] it's like a different kind of you, you show me the data. So I can see here also the months,
+[25:14-25:21] but I also have the option to see the last three months per day per week. So I can see calendar week
+[25:21-25:28] nine, eight, seven, six, five, four. And then I can hear, I have here all my important KPIs for the
+[25:28-25:34] dashboard. And the fourth thing, so the card is not important for us. And the trend is also
+[25:34-25:42] important for me because then I can see the trend in the single products. So this is not
+[25:42-25:47] more the holistic kind of view of the data. So this is more the data into the
+[25:48-25:53] product. And this is also important for me on the employees or into the
+[25:56-26:08] groups. Yeah, it's not working. But as you can see here, the trend dashboard, you can see here
+[26:08-26:13] from like the hamburger, you can see what was the, so you can click here on then you click on revenue,
+[26:13-26:18] and then you can benchmark the revenue or you can go to margin or you can go to
+[26:20-26:26] cost per employee or what kind of thing is in it. And then you can see here in different
+[26:27-26:32] months. And then you can see here a little bit like a trend. You know what I mean?
+[26:33-26:37] I know what you mean. I know what you mean. And this looks to me so sophisticated. I'm just
+[26:37-26:46] wondering how much of it can we fit in a dashboard? Okay. Or do you think it's better to
+[26:46-26:52] change from Power BI into the, into a system where you can make it like
+[26:52-26:57] seller board is working on the doors, programated? That could be an option too.
+[26:57-27:05] That could be an option too. So when I'll start the build, I'll explore both options quickly.
+[27:05-27:11] And then I'll keep building on one of them. So perhaps at the end, the final deliverable might not
+[27:11-27:20] be a Power BI dashboard. Perhaps it will be a web app. But we'll see. Okay. So this kind of stuff is,
+[27:20-27:26] so for me, this one is really important to see the data here. So this is more important for
+[27:26-27:31] me at this one and also at this one. So this is for me more important. But at the end, I think
+[27:31-27:37] these both kind of views are also really important for me. But this have for me more priority. So we
+[27:37-27:41] can first start with this one and this one. And then you can see if we can bring it into this and
+[27:41-27:47] this. But in my point of view is like, if you, if you make this and this, then you have the same
+[27:47-27:56] data and you just have, you have to find it a third or second, a third afford way to show it.
+[27:56-28:00] You know what I mean? Because at the end, it's the same data, but different kinds of ways,
+[28:00-28:07] how you can show it. Yeah, that view, that gov page, gov page, it looks similar to the one
+[28:07-28:13] after the trend. Not sure what's the difference between this and this. Yeah.
+[28:14-28:20] And so you have here, wait, okay. So you have here, this is trend.
+[28:21-28:22] Okay.
+[28:24-28:32] And then you have here the geofab. And the different things between these both is
+[28:32-28:40] here at the end, you can see, you can benchmark every single, you can just benchmark one KPI
+[28:40-28:45] like revenue. And then you have here all the revenue from the products in the months. So
+[28:45-28:52] and this one, you have not your, not so deep into the, you know what I mean? You cannot
+[28:52-28:58] benchmark in one view, the kind of products or the employees in kind of one benchmark. So here
+[28:58-29:03] you have like all the benchmarks on the left side, and you can benchmark it into months,
+[29:03-29:07] but you cannot go deeper and you cannot go deeper in and benchmark in between of
+[29:08-29:15] a varengrub or into products or into employees. You know what I mean?
+[29:15-29:21] Yes, I see. Yeah. Okay. Okay. But if you want, I can also share it to you and then you can,
+[29:22-29:28] you can see, maybe you can see more in it, how this is working and you can click in it
+[29:28-29:32] and then you can see all these stuff. Yeah. Do we have these screenshots of a trans page and
+[29:32-29:44] gov page in Figma? Yes, but not with the KPIs in it. Okay. I see. Okay. All right. No problem. Okay.
+[29:48-29:55] So this is like, I mean, and I think this is the biggest part from the whole thing. And this
+[29:55-30:01] parts are like more like, so there's also also a lot of things to do, but I think this is
+[30:02-30:08] the magic is going on here. And this is a little bit like between things that are helping to have
+[30:08-30:15] here the right data. So where we put by ourselves some data, and a little bit think like this,
+[30:15-30:23] this are some new things for me to see how I have to plan the employees. But now we can move on.
+[30:23-30:28] So what do you mean by you use, you put some data in that section,
+[30:29-30:34] receptor? Because in Power BI, it's mainly for data visualization. It's usually outputs the
+[30:34-30:38] the visuals for you. It does not give you the possibility to enter the data in.
+[30:40-30:47] Okay, because I'm planning here. So in this mockup, I'm planning that I can bring data
+[30:47-31:03] in it by myself. As you can see here for like, so for example, I can bring here like indirect
+[31:03-31:12] cost. This is like I have like, for electricity or like for gas or have I like, I have a contract for the
+[31:23-31:28] so for example, I have a contract for the real estate. So like I have to pay 5000 euros per
+[31:28-31:33] month for the real estate. And then I can put it in here like, I can go here and then I can go
+[31:33-31:45] and say, I have it every month. And then I have cost for the immobilia. So for the real estate.
+[31:46-31:51] And then I can put it in here and can save 5000 euros. And then I have it in the data,
+[31:51-31:57] you know what I mean? Yes. So I will just save it. Yeah. I'll just say, since the dashboard is for
+[31:57-32:02] the output is for the data visualization, then you can build, for example, a Google sheet,
+[32:02-32:06] and then you will have a similar table in that Google sheet and you input the numbers in the
+[32:06-32:11] Google sheet directly. And then the dashboard or the app will be reading from that Google sheet.
+[32:12-32:18] It's fine. It's also fine. Okay. And yeah, you can you can start creating those Google sheets if
+[32:18-32:27] you need. I can start creating the sheets. Yeah. Okay. Okay, then we are working there with
+[32:27-32:31] the Google sheet. But I think, can we also then show the data from the Google sheet in the
+[32:31-32:37] dashboard? Yes, this is fine. If it's the exact same view, if it's absolutely the same table,
+[32:37-32:42] we're just displaying here, I would say maybe no need, maybe no need. Let's just have it in
+[32:42-32:47] the Google sheet. But if it's calculation or aggregation, etc., then maybe it makes sense.
+[32:53-33:04] Okay. Okay. So at the end, so at the end is like, but it's not possible to put it here in it.
+[33:04-33:09] So like you see it here on cellar board, I can put it by myself into the dashboard. So I have to go
+[33:09-33:17] into the Google sheet. Yes. Yes. For data input, for data entry, it has to be done outside of Power BI.
+[33:17-33:22] You will, if you search Power BI and data visualization tools, almost all of them are
+[33:22-33:31] for output, not for input. So yeah, you can put data in the sheet and I can display it in the
+[33:31-33:40] dashboard if you want to. I see. So I will explain it then we can talk about how it's the better way
+[33:40-33:48] to make it into a Google sheet or how we can work with this. Okay. Okay. So for example, this is like
+[33:49-34:04] a recipe, it's like a recipe, you know what I mean? Yeah. Okay. So the recipe for the hamburger,
+[34:06-34:14] the recipe for the hamburger is like, so in my mock-up, I would like to have it like I have
+[34:14-34:21] here the hamburger and then I go down and then I can make here the recipe for the hamburger.
+[34:21-34:28] So I can see here, like in the hamburger, there's one bun and there's one patty and there's like a
+[34:28-34:34] little bit of salad and then there's the tomato and then there's the onion and then there's the
+[34:34-34:42] sausage, for example. So this is the recipe for the hamburger. And then I have here in this part,
+[34:42-34:52] I can go and say one bun costs me like 0.34 cents or euros. And then they know when I go here and say
+[34:52-34:57] in the hamburger, it's like this part's like in the hamburger, then you know, okay, there's like
+[34:57-35:05] a bun for 34 cents and then there's a 180 gram patty for 94 cents and then he multiply all
+[35:05-35:13] the things each other. And then he's telling me here, the total price for make this is like for euros.
+[35:13-35:20] And then I have here a margin. Here's the margin. Here's the target price. And here's the
+[35:21-35:26] selling price. And here's the number of the products. So this is, for example, the hamburger.
+[35:26-35:30] But I will have it for all the products and then I can see and I can filter what kind of
+[35:30-35:35] product there we have the best margin and I can filter what is on which product is the best margin
+[35:35-35:44] in it. And on this part here, I can have an employee, he's selling all the stuff for us.
+[35:44-35:50] And then he can put here into this dashboard all the prices. So if we have here for the bun,
+[35:50-35:55] we are paying 34 cents. And then she know all the price goes a little bit up to 40 cents.
+[35:56-36:04] He go into it and then she is changing it into 40 cents. And then I have here different kind of data
+[36:04-36:09] because this dashboard is then knowing, okay, here the price goes a little bit up and then
+[36:09-36:15] the this price is going up. And from this on, then we have like a different kind of margin.
+[36:15-36:23] You know what I mean? Yeah. So this is my idea for this. And I will have here like
+[36:23-36:27] an overview, but we can also try to make it in a Google sheet.
+[36:30-36:34] But for me, it would be better if I have everything like in single in the single source of truth. So
+[36:34-36:40] like into one system, this would be the best way for me that I can go the access for the employee
+[36:40-36:47] from me and then she can put all the data here into it. So in best case, we can bring it into
+[36:47-37:06] one system. Okay. And for this here, like this is name for bräuchere. Consumtions. And so I would have
+[37:06-37:13] here like, I will have here overview, you know, by the way, this zoom link will end in two
+[37:13-37:18] minutes from now. If it's, if it stops, then I can send you a different link and we can continue
+[37:18-37:26] the discussion. Okay, fine. So here into the consumptions, you know the word consumptions?
+[37:27-37:35] Yes. Okay. So I will have here like, I will see how much. So my idea for this is, so at the end,
+[37:35-37:41] I have, I know exactly how many hamburgers I sell like last year or like last month.
+[37:41-37:47] And then I know, okay, I sell like 2000 hamburgers. Then I know at the end I have to buy in
+[37:47-37:54] like 2000 buns for the hamburger. And then I will go here and then I will have have here the option to
+[37:54-37:58] see, okay, in the last three months, how many hamburgers we are selling. And at the end, we are
+[37:58-38:06] selling like 5000 hamburgers. Then I will go and check, do we also selling 5000 hamburgers? Because
+[38:06-38:13] when we are selling 5000 500 hamburger buns, so then we have 500 bun that I don't know where
+[38:13-38:21] the 500 buns are. And so I can check, is there an option that somebody is stealing something or we
+[38:22-38:30] put too much potatoes or too much whatever. So the receptions as I wanted. So the calculation
+[38:30-38:34] is not right because I can benchmark between the real data and the data that I calculate.
+[38:34-38:41] So if I see some big difference between this both data, then I know, okay, there's a problem.
+[38:41-38:55] So at the end, I know I buy like 500 kilograms of potatoes or fries. So when I buy 500 kilograms of
+[38:55-38:59] fries from the data that I'm selling, so I'm selling like 500 kilograms of fries. But at the end,
+[38:59-39:05] we are buying like 600 kilograms. Then I know, okay, we have 100 kilograms of fries and where
+[39:05-39:11] are the 100 kilograms? Is somebody stealing some fries? Or do we give every customer too much
+[39:11-39:18] fries because we don't have the right, you know what I mean. And this is my idea for this kind of
+[39:18-39:26] dashboard that I can check here the consumptions and then I can put like here fries or I go
+[39:26-39:31] here and put the 180 gram patty and then I know in kind of I will
