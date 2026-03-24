@@ -1,5 +1,5 @@
 const VAT_RATE = 1.19;
-const LOCAL_KEY = "route66-local-demo-v3";
+const LOCAL_KEY = "restaurant-performance-local-demo-v1";
 
 const ROLE_OPTIONS = [
   { key: "owner", label: "Owner" },
@@ -138,7 +138,7 @@ const state = {
   revenueMode: "gross",
   compareMode: "previous",
   roleKey: "manager",
-  restaurantKey: "daisys-diner-oyten",
+  restaurantKey: "demo-restaurant",
   rangePreset: "currentMonth",
   startDate: null,
   endDate: null,
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeControls() {
   fillSelect(document.getElementById("role-select"), ROLE_OPTIONS.map((item) => [item.key, item.label]));
   fillSelect(document.getElementById("mobile-page-select"), PAGE_ORDER.map((page) => [page, PAGE_LABELS[page]]));
-  fillSelect(document.getElementById("restaurant-select"), [["daisys-diner-oyten", "Daisy's Diner - Oyten"]]);
+  fillSelect(document.getElementById("restaurant-select"), [["demo-restaurant", "Demo Restaurant"]]);
   fillSelect(document.getElementById("range-preset"), RANGE_PRESETS);
   fillSelect(document.getElementById("trend-metric-select"), TREND_METRICS);
   fillSelect(document.getElementById("trend-preset-select"), TREND_GROUPINGS);
