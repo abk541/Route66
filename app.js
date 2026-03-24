@@ -1,5 +1,5 @@
 const VAT_RATE = 1.19;
-const LOCAL_KEY = "restaurant-performance-local-demo-v1";
+const LOCAL_KEY = "restaurant-performance-local-v1";
 
 const ROLE_OPTIONS = [
   { key: "owner", label: "Owner" },
@@ -138,7 +138,7 @@ const state = {
   revenueMode: "gross",
   compareMode: "previous",
   roleKey: "manager",
-  restaurantKey: "demo-restaurant",
+  restaurantKey: "primary-restaurant",
   rangePreset: "currentMonth",
   startDate: null,
   endDate: null,
@@ -168,12 +168,12 @@ const runtimeCache = {
 
 const datasets = {
   live: attachDatasetLabel(window.__RESTAURANT_DATA__, "CSV Data"),
-  mock: buildMockDataset(window.__RESTAURANT_DATA__),
+  scenario: buildScenarioDataset(window.__RESTAURANT_DATA__),
 };
 
 const processedDatasets = {
   live: buildProcessedDataset(datasets.live),
-  mock: buildProcessedDataset(datasets.mock),
+  scenario: buildProcessedDataset(datasets.scenario),
 };
 
 let localModel = null;
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeControls() {
   fillSelect(document.getElementById("role-select"), ROLE_OPTIONS.map((item) => [item.key, item.label]));
   fillSelect(document.getElementById("mobile-page-select"), PAGE_ORDER.map((page) => [page, PAGE_LABELS[page]]));
-  fillSelect(document.getElementById("restaurant-select"), [["demo-restaurant", "Demo Restaurant"]]);
+  fillSelect(document.getElementById("restaurant-select"), [["primary-restaurant", "Primary Restaurant"]]);
   fillSelect(document.getElementById("range-preset"), RANGE_PRESETS);
   fillSelect(document.getElementById("trend-metric-select"), TREND_METRICS);
   fillSelect(document.getElementById("trend-preset-select"), TREND_GROUPINGS);
@@ -696,7 +696,7 @@ function renderDashboardNote() {
   document.getElementById("dashboard-note-input").value = note;
   document.getElementById("dashboard-note-status").innerHTML = note
     ? `<div class="note-card"><strong>Saved for ${formatRange(state.startDate, state.endDate)}</strong><span>${escapeHtml(trimLabel(note, 180))}</span></div>`
-    : "<div class=\"note-card\"><strong>No dashboard note yet.</strong><span>This stays in the browser for the selected range so you can demo local-only comments now and move them to a backend later.</span></div>";
+    : "<div class=\"note-card\"><strong>No dashboard note yet.</strong><span>This note stays in this browser for the selected range until shared storage is connected.</span></div>";
 }
 
 function dashboardNoteKey() {
@@ -1495,7 +1495,7 @@ function buildPermissionsTable() {
 function buildSettingsSummary() {
   const pages = (localModel.permissions[state.roleKey] || []).map((page) => PAGE_LABELS[page]);
   return `
-    <div class="note-card"><strong>Current demo role</strong><span>${ROLE_OPTIONS.find((item) => item.key === state.roleKey)?.label || state.roleKey}</span></div>
+    <div class="note-card"><strong>Current role</strong><span>${ROLE_OPTIONS.find((item) => item.key === state.roleKey)?.label || state.roleKey}</span></div>
     <div class="note-card"><strong>Accessible areas</strong><span>${pages.join(", ") || "No areas assigned."}</span></div>
     <div class="note-card"><strong>Lower-access preview</strong><span>Use the role selector in the top bar to demonstrate restricted heatmap / KPI access.</span></div>
   `;
@@ -1835,7 +1835,7 @@ function keyKpiItems(summary, compareSummary, detailed = false) {
     kpiRow("Revenue per Guest", formatCurrency(summary.revenuePerGuestCents), compareValue(compareSummary, "revenuePerGuestCents"), deltaDisplay(summary.revenuePerGuestCents, compareSummary.revenuePerGuestCents), "Useful for spend-per-guest analysis."),
     kpiRow("Revenue per Employee (Total)", formatCurrency(summary.revenuePerEmployeeCents), compareValue(compareSummary, "revenuePerEmployeeCents"), deltaDisplay(summary.revenuePerEmployeeCents, compareSummary.revenuePerEmployeeCents), "Umsatz pro Mitarbeiter (gesamt)."),
     kpiRow("Productivity per Labour Hour", formatCurrency(summary.revenuePerLaborHourCents), compareValue(compareSummary, "revenuePerLaborHourCents"), deltaDisplay(summary.revenuePerLaborHourCents, compareSummary.revenuePerLaborHourCents), "Revenue generated per scheduled labour hour."),
-    kpiRow("Time from Order to Serving", formatDurationMinutes(summary.averageServiceMinutes), compareValue(compareSummary, "averageServiceMinutes"), deltaDisplay(summary.averageServiceMinutes, compareSummary.averageServiceMinutes), "Demo estimate until order/serve timestamps are connected."),
+    kpiRow("Time from Order to Serving", formatDurationMinutes(summary.averageServiceMinutes), compareValue(compareSummary, "averageServiceMinutes"), deltaDisplay(summary.averageServiceMinutes, compareSummary.averageServiceMinutes), "Estimated until order/serve timestamps are connected."),
     kpiRow("Average Discounts per Day", formatCurrency(summary.averageDiscountsPerDayCents), compareValue(compareSummary, "averageDiscountsPerDayCents"), deltaDisplay(summary.averageDiscountsPerDayCents, compareSummary.averageDiscountsPerDayCents), "Derived from POS refunds / discount rows."),
     kpiRow("Average Cancellations per Day", decimalFormatter.format(summary.averageCancellationsPerDay), compareValue(compareSummary, "averageCancellationsPerDay"), deltaDisplay(summary.averageCancellationsPerDay, compareSummary.averageCancellationsPerDay), "Durchschnittliche Anzahl an Stornos pro Tag."),
     kpiRow("Average Staff per Day in the Kitchen", decimalFormatter.format(summary.averageStaffPerDayKitchen), compareValue(compareSummary, "averageStaffPerDayKitchen"), deltaDisplay(summary.averageStaffPerDayKitchen, compareSummary.averageStaffPerDayKitchen), "Kitchen staffing"),
@@ -3083,9 +3083,9 @@ function attachDatasetLabel(dataset, label) {
   return { ...dataset, meta: { ...dataset.meta, label } };
 }
 
-function buildMockDataset(source) {
+function buildScenarioDataset(source) {
   const clone = JSON.parse(JSON.stringify(source));
-  clone.meta.label = "Mock Demo";
+  clone.meta.label = "Scenario Data";
   clone.daily = clone.daily.map((item) => ({ ...item, receiptRevenueCents: Math.round(item.receiptRevenueCents * (isWeekend(item.date) ? 1.14 : 1.08)), lineRevenueCents: Math.round(item.lineRevenueCents * 1.09), orderCount: Math.round(item.orderCount * 1.1), itemsSold: roundValue(item.itemsSold * 1.12), takeawayRevenueCents: Math.round(item.takeawayRevenueCents * 1.2), tables: Math.round(item.tables * 1.05), staff: Math.max(item.staff, Math.round(item.staff * 1.08)) }));
   clone.hourly = clone.hourly.map((item) => ({ ...item, lineRevenueCents: Math.round(item.lineRevenueCents * (item.hour >= 18 && item.hour <= 21 ? 1.18 : 1.05)), itemsSold: roundValue(item.itemsSold * 1.1), tables: Math.round(item.tables * 1.06) }));
   clone.productDaily = clone.productDaily.map((item) => ({ ...item, lineRevenueCents: Math.round(item.lineRevenueCents * ((item.category || "").includes("Burgers") ? 1.18 : 1.09)), units: roundValue(item.units * 1.08), orders: Math.round(item.orders * 1.05) }));

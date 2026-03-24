@@ -321,7 +321,7 @@ thead th,
   box-shadow: 0 0 0 3px rgba(124, 143, 244, 0.12);
 }
 
-.demo-switcher,
+.dataset-switcher,
 .section-tabs,
 .segmented-control {
   display: inline-flex;
@@ -1360,7 +1360,7 @@ code {
     min-height: 40px;
   }
 
-  .demo-switcher,
+  .dataset-switcher,
   .section-tabs,
   .segmented-control {
     width: 100%;
@@ -1414,7 +1414,7 @@ code {
     min-width: 0;
   }
 
-  .demo-switcher > *,
+  .dataset-switcher > *,
   .section-tabs > *,
   .segmented-control > * {
     flex: 1 1 auto;
@@ -1528,7 +1528,7 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .demo-switcher {
+  .dataset-switcher {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
