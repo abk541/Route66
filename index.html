@@ -63,10 +63,6 @@
 
         <div class="sidebar-group sidebar-group-secondary">
           <div class="sidebar-section-label">Display</div>
-          <button class="sidebar-theme-toggle" id="theme-toggle" type="button">
-            <span class="sidebar-link-icon">L</span>
-            <span id="theme-toggle-label">Light Theme</span>
-          </button>
 
           <label class="top-select sidebar-select">
             <span>Role</span>
@@ -97,6 +93,14 @@
                 <span>Page</span>
                 <select id="mobile-page-select"></select>
               </label>
+            </div>
+
+            <div class="dashboard-cluster-nav" id="dashboard-cluster-nav">
+              <button class="dashboard-tab active" data-dashboard-page="dashboard">Tiles</button>
+              <button class="dashboard-tab" data-dashboard-page="matrix">Graphic</button>
+              <button class="dashboard-tab" data-dashboard-page="costs">P&amp;L</button>
+              <button class="dashboard-tab" data-dashboard-page="heatmap">Map</button>
+              <button class="dashboard-tab" data-dashboard-page="trends">Trends</button>
             </div>
 
             <div class="topbar-actions">
@@ -207,14 +211,6 @@
         </header>
 
         <main class="dashboard-main">
-          <div class="dashboard-cluster-nav" id="dashboard-cluster-nav">
-            <button class="dashboard-tab active" data-dashboard-page="dashboard">Tiles</button>
-            <button class="dashboard-tab" data-dashboard-page="matrix">Graphic</button>
-            <button class="dashboard-tab" data-dashboard-page="costs">P&amp;L</button>
-            <button class="dashboard-tab" data-dashboard-page="heatmap">Map</button>
-            <button class="dashboard-tab" data-dashboard-page="trends">Trends</button>
-          </div>
-
           <section class="metric-strip" id="preset-grid"></section>
 
           <section class="workspace-panel">

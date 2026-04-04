@@ -1,6 +1,5 @@
 const VAT_RATE = 1.19;
 const LOCAL_KEY = "restaurant-performance-local-v1";
-const THEME_KEY = "restaurant-performance-theme-v1";
 
 const ROLE_OPTIONS = [
   { key: "owner", label: "Owner" },
@@ -155,7 +154,6 @@ const state = {
   tableSort: "marginCents",
   cardModels: [],
   renderContext: null,
-  theme: "dark",
 };
 
 const runtimeCache = {
@@ -183,8 +181,6 @@ let localModel = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   localModel = loadLocalModel();
-  state.theme = loadThemePreference();
-  applyTheme(state.theme);
   initializeControls();
   applyRangePreset(state.rangePreset);
   wireEvents();
@@ -304,13 +300,6 @@ function wireEvents() {
 
   document.getElementById("shell-backdrop").addEventListener("click", () => {
     document.body.classList.remove("sidebar-open");
-  });
-
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    state.theme = state.theme === "dark" ? "light" : "dark";
-    applyTheme(state.theme);
-    persistThemePreference(state.theme);
-    syncControls();
   });
 
   document.getElementById("apply-range").addEventListener("click", () => {
@@ -495,7 +484,6 @@ function syncControls() {
     PAGE_ORDER.filter((page) => isPageAllowed(page)).map((page) => [page, PAGE_LABELS[page]]),
   );
   document.getElementById("mobile-page-select").value = state.currentPage;
-  document.getElementById("theme-toggle-label").textContent = state.theme === "dark" ? "Light Theme" : "Dark Theme";
 
   document.querySelectorAll(".dataset-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.dataset === state.datasetKey);
@@ -555,26 +543,6 @@ function setPage(page, options = {}) {
 
 function sidebarActivePage(page) {
   return DASHBOARD_CLUSTER_PAGES.includes(page) ? "dashboard" : page;
-}
-
-function loadThemePreference() {
-  try {
-    return localStorage.getItem(THEME_KEY) || "dark";
-  } catch (error) {
-    return "dark";
-  }
-}
-
-function persistThemePreference(theme) {
-  try {
-    localStorage.setItem(THEME_KEY, theme);
-  } catch (error) {
-    // Ignore localStorage failures in local demo mode.
-  }
-}
-
-function applyTheme(theme) {
-  document.body.dataset.theme = theme;
 }
 
 function renderPresetCards() {
