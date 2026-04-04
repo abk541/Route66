@@ -1,5 +1,6 @@
 const VAT_RATE = 1.19;
 const LOCAL_KEY = "restaurant-performance-local-v1";
+const THEME_KEY = "restaurant-performance-theme-v1";
 
 const ROLE_OPTIONS = [
   { key: "owner", label: "Owner" },
@@ -27,10 +28,10 @@ const UNIT_OPTIONS = [
 
 const PAGE_LABELS = {
   dashboard: "Dashboard",
-  explorer: "Explorer",
+  explorer: "Products",
   heatmap: "Heatmap",
   trends: "Trends",
-  matrix: "Product Matrix",
+  matrix: "Magic Menu Quadrant",
   transactions: "POS Transactions",
   employees: "Employees",
   purchasing: "Purchasing",
@@ -40,6 +41,7 @@ const PAGE_LABELS = {
 };
 
 const PAGE_ORDER = Object.keys(PAGE_LABELS);
+const DASHBOARD_CLUSTER_PAGES = ["dashboard", "matrix", "costs", "heatmap", "trends"];
 
 const RANGE_PRESETS = [
   ["today", "Today"],
@@ -153,6 +155,7 @@ const state = {
   tableSort: "marginCents",
   cardModels: [],
   renderContext: null,
+  theme: "dark",
 };
 
 const runtimeCache = {
@@ -180,6 +183,8 @@ let localModel = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   localModel = loadLocalModel();
+  state.theme = loadThemePreference();
+  applyTheme(state.theme);
   initializeControls();
   applyRangePreset(state.rangePreset);
   wireEvents();
@@ -226,13 +231,12 @@ function syncDynamicSelects() {
 }
 
 function wireEvents() {
-  document.querySelectorAll(".nav-link").forEach((button) => {
+  document.querySelectorAll(".sidebar-link").forEach((button) => {
     button.addEventListener("click", () => {
       if (!isPageAllowed(button.dataset.page)) {
         return;
       }
-      state.currentPage = button.dataset.page;
-      renderAll();
+      setPage(button.dataset.page, { explorerMode: button.dataset.mode || null, closeSidebar: true });
     });
   });
 
@@ -240,8 +244,13 @@ function wireEvents() {
     if (!isPageAllowed(event.target.value)) {
       return;
     }
-    state.currentPage = event.target.value;
-    renderAll();
+    setPage(event.target.value, { closeSidebar: true });
+  });
+
+  document.querySelectorAll(".dashboard-tab").forEach((button) => {
+    button.addEventListener("click", () => {
+      setPage(button.dataset.dashboardPage, { closeSidebar: true });
+    });
   });
 
   document.querySelectorAll(".dataset-button").forEach((button) => {
@@ -283,6 +292,25 @@ function wireEvents() {
   document.getElementById("toggle-filters").addEventListener("click", () => {
     state.filtersOpen = !state.filtersOpen;
     renderFilterDrawer();
+  });
+
+  document.getElementById("shell-menu-button").addEventListener("click", () => {
+    document.body.classList.add("sidebar-open");
+  });
+
+  document.getElementById("sidebar-toggle-button").addEventListener("click", () => {
+    document.body.classList.toggle("sidebar-open");
+  });
+
+  document.getElementById("shell-backdrop").addEventListener("click", () => {
+    document.body.classList.remove("sidebar-open");
+  });
+
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    applyTheme(state.theme);
+    persistThemePreference(state.theme);
+    syncControls();
   });
 
   document.getElementById("apply-range").addEventListener("click", () => {
@@ -410,6 +438,7 @@ function buildRenderContext() {
 
 function renderActivePage(context) {
   document.getElementById("preset-grid").style.display = state.currentPage === "dashboard" ? "grid" : "none";
+  document.getElementById("dashboard-cluster-nav").style.display = DASHBOARD_CLUSTER_PAGES.includes(state.currentPage) ? "flex" : "none";
   if (state.currentPage === "dashboard") {
     renderPresetCards();
     renderDashboard(context);
@@ -466,15 +495,20 @@ function syncControls() {
     PAGE_ORDER.filter((page) => isPageAllowed(page)).map((page) => [page, PAGE_LABELS[page]]),
   );
   document.getElementById("mobile-page-select").value = state.currentPage;
+  document.getElementById("theme-toggle-label").textContent = state.theme === "dark" ? "Light Theme" : "Dark Theme";
 
   document.querySelectorAll(".dataset-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.dataset === state.datasetKey);
   });
 
-  document.querySelectorAll(".nav-link").forEach((button) => {
+  document.querySelectorAll(".sidebar-link").forEach((button) => {
     const allowed = isPageAllowed(button.dataset.page);
     button.hidden = !allowed;
-    button.classList.toggle("active", button.dataset.page === state.currentPage);
+    button.classList.toggle("active", sidebarActivePage(button.dataset.page) === sidebarActivePage(state.currentPage));
+  });
+
+  document.querySelectorAll(".dashboard-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.dashboardPage === state.currentPage);
   });
 
   document.querySelectorAll(".mode-switch").forEach((button) => {
@@ -503,6 +537,44 @@ function hydrateHeaderMeta() {
   document.getElementById("meta-rows").textContent = numberFormatter.format(data.meta.rowsRead);
   document.getElementById("meta-products").textContent = numberFormatter.format(data.meta.uniqueProducts);
   document.getElementById("meta-staff").textContent = numberFormatter.format(data.meta.uniqueEmployees);
+}
+
+function setPage(page, options = {}) {
+  if (!isPageAllowed(page)) {
+    return;
+  }
+  state.currentPage = page;
+  if (options.explorerMode) {
+    state.explorerMode = options.explorerMode;
+  }
+  if (options.closeSidebar) {
+    document.body.classList.remove("sidebar-open");
+  }
+  renderAll();
+}
+
+function sidebarActivePage(page) {
+  return DASHBOARD_CLUSTER_PAGES.includes(page) ? "dashboard" : page;
+}
+
+function loadThemePreference() {
+  try {
+    return localStorage.getItem(THEME_KEY) || "dark";
+  } catch (error) {
+    return "dark";
+  }
+}
+
+function persistThemePreference(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (error) {
+    // Ignore localStorage failures in local demo mode.
+  }
+}
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
 }
 
 function renderPresetCards() {
@@ -553,6 +625,7 @@ function renderExplorer(context) {
         : context.employeeRows;
   const rows = sortEntityRows(source, state.tableSort);
   document.getElementById("explorer-title").textContent = titleMap[state.explorerMode];
+  document.getElementById("explorer-highlight").innerHTML = buildExplorerHighlight(context);
   document.getElementById("explorer-summary").innerHTML = buildExplorerSummary(context, rows);
   document.getElementById("explorer-table").innerHTML = buildExplorerTable(rows);
 }
@@ -933,6 +1006,48 @@ function buildExplorerSummary(context, rows) {
   return chips.join("");
 }
 
+function buildExplorerHighlight(context) {
+  const featuredProduct = sortEntityRows(context.productRows.slice(), "grossRevenueCents")[0];
+  const featuredCategory = sortEntityRows(context.categoryRows.slice(), "grossRevenueCents")[0];
+  const featuredEmployee = sortEntityRows(context.employeeRows.slice(), "grossRevenueCents")[0];
+
+  const cards = [
+    {
+      label: "Product",
+      value: featuredProduct?.name || "No product data",
+      meta: featuredProduct
+        ? `${formatCurrency(displayRevenueValue(featuredProduct))} · Cost: ${formatCurrency(featuredProduct.foodCostCents || 0)} · Art. ${featuredProduct.articleNumber || "-"}`
+        : "Adjust filters or time range.",
+    },
+    {
+      label: "Product Group",
+      value: featuredCategory?.name || "No group data",
+      meta: featuredCategory
+        ? `${numberFormatter.format(Math.round(featuredCategory.units || 0))} units · ${formatDisplayRevenue(featuredCategory)} · Margin ${formatPercent(featuredCategory.netRevenueCents ? featuredCategory.marginCents / featuredCategory.netRevenueCents : 0)}`
+        : "Adjust filters or time range.",
+    },
+    {
+      label: "Employee",
+      value: featuredEmployee?.name || "No employee data",
+      meta: featuredEmployee
+        ? `${formatDisplayRevenue(featuredEmployee)} · ${featuredEmployee.group || "Unassigned"} · No. ${featuredEmployee.employeeNumber || "-"}`
+        : "Adjust filters or time range.",
+    },
+  ];
+
+  return cards
+    .map(
+      (card) => `
+        <article class="explorer-feature-card">
+          <div class="explorer-feature-label">${card.label}</div>
+          <div class="explorer-feature-value">${escapeHtml(card.value)}</div>
+          <div class="explorer-feature-meta">${escapeHtml(card.meta)}</div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
 function buildExplorerTable(rows) {
   if (!rows.length) {
     return "<table><thead><tr><th>Result</th></tr></thead><tbody><tr><td>No rows match the current filters.</td></tr></tbody></table>";
@@ -1147,8 +1262,8 @@ function buildMatrixChart(matrix) {
     return "<div class=\"note-card\">No product rows available for the selected filters.</div>";
   }
   const width = 920;
-  const height = 420;
-  const padding = { top: 26, right: 22, bottom: 40, left: 42 };
+  const height = 520;
+  const padding = { top: 40, right: 30, bottom: 56, left: 54 };
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
   const visibleRows = matrix.rows.slice(0, 60);
@@ -1165,15 +1280,34 @@ function buildMatrixChart(matrix) {
       .slice(0, 8)
       .map((row) => row.id),
   );
+  const quadrants = [
+    { label: "Hidden Gems", x: padding.left + 12, y: padding.top + 22, fill: "#dff3f3", text: "#4e9f9d" },
+    { label: "Greatest Hits", x: width - 156, y: padding.top + 22, fill: "#e7eefc", text: "#5b8fd8" },
+    { label: "Underperformers", x: padding.left + 12, y: height - 62, fill: "#fff0d9", text: "#d29a34" },
+  ];
 
   return `
     <svg viewBox="0 0 ${width} ${height}" aria-label="Product matrix">
-      <line x1="${padding.left}" y1="${padding.top + innerHeight}" x2="${padding.left + innerWidth}" y2="${padding.top + innerHeight}" stroke="rgba(255,255,255,0.12)"></line>
-      <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + innerHeight}" stroke="rgba(255,255,255,0.12)"></line>
-      <line x1="${avgX}" y1="${padding.top}" x2="${avgX}" y2="${padding.top + innerHeight}" stroke="#586678" stroke-dasharray="6 6"></line>
-      <line x1="${padding.left}" y1="${avgY}" x2="${padding.left + innerWidth}" y2="${avgY}" stroke="#586678" stroke-dasharray="6 6"></line>
-      <text x="${padding.left}" y="${padding.top - 8}" fill="#98a1ad" font-size="12">Margin</text>
-      <text x="${width - 80}" y="${height - 10}" fill="#98a1ad" font-size="12">Sales</text>
+      <rect x="${padding.left}" y="${padding.top}" width="${avgX - padding.left}" height="${avgY - padding.top}" fill="#f3f9f9"></rect>
+      <rect x="${avgX}" y="${padding.top}" width="${padding.left + innerWidth - avgX}" height="${avgY - padding.top}" fill="#f3f5fb"></rect>
+      <rect x="${padding.left}" y="${avgY}" width="${avgX - padding.left}" height="${padding.top + innerHeight - avgY}" fill="#fff8ed"></rect>
+      <rect x="${avgX}" y="${avgY}" width="${padding.left + innerWidth - avgX}" height="${padding.top + innerHeight - avgY}" fill="#f6fbf3"></rect>
+      <line x1="${padding.left}" y1="${padding.top + innerHeight}" x2="${padding.left + innerWidth}" y2="${padding.top + innerHeight}" stroke="#d4dbe6"></line>
+      <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + innerHeight}" stroke="#d4dbe6"></line>
+      <line x1="${avgX}" y1="${padding.top}" x2="${avgX}" y2="${padding.top + innerHeight}" stroke="#ced5e3"></line>
+      <line x1="${padding.left}" y1="${avgY}" x2="${padding.left + innerWidth}" y2="${avgY}" stroke="#ced5e3"></line>
+      ${quadrants
+        .map(
+          (quadrant) => `
+            <g>
+              <rect x="${quadrant.x}" y="${quadrant.y - 16}" rx="6" ry="6" width="${quadrant.label.length * 7.6 + 24}" height="28" fill="${quadrant.fill}"></rect>
+              <text x="${quadrant.x + 12}" y="${quadrant.y + 2}" fill="${quadrant.text}" font-size="13" font-weight="700">${quadrant.label}</text>
+            </g>
+          `,
+        )
+        .join("")}
+      <text x="${padding.left}" y="${padding.top - 12}" fill="#606b79" font-size="13" font-weight="700">Retention</text>
+      <text x="${width - 86}" y="${height - 14}" fill="#606b79" font-size="13" font-weight="700">Popularity</text>
       ${visibleRows
         .map((row) => {
           const x = padding.left + scaleMatrixSales(row.grossRevenueCents, salesCeiling) * innerWidth;
@@ -1181,8 +1315,9 @@ function buildMatrixChart(matrix) {
           const showLabel = labeledProducts.has(row.id);
           return `
             <g data-point-product="${row.id}">
-              <circle cx="${x}" cy="${y}" r="${showLabel ? 6 : 5}" fill="${quadrantColor(row.quadrant)}" opacity="${showLabel ? "0.92" : "0.72"}"></circle>
-              ${showLabel ? `<text x="${x}" y="${y - 10}" text-anchor="middle" fill="#cfd6df" font-size="10">${escapeHtml(trimLabel(row.name, 16))}</text>` : ""}
+              <circle cx="${x}" cy="${y}" r="${showLabel ? 7 : 5.5}" fill="#ffffff" opacity="0.95"></circle>
+              <circle cx="${x}" cy="${y}" r="${showLabel ? 5 : 4}" fill="${quadrantColor(row.quadrant)}" opacity="${showLabel ? "0.94" : "0.8"}"></circle>
+              ${showLabel ? `<text x="${x}" y="${y - 14}" text-anchor="middle" fill="#5a6572" font-size="10.5">${escapeHtml(trimLabel(row.name, 16))}</text>` : ""}
             </g>
           `;
         })
@@ -3085,7 +3220,7 @@ function attachDatasetLabel(dataset, label) {
 
 function buildScenarioDataset(source) {
   const clone = JSON.parse(JSON.stringify(source));
-  clone.meta.label = "Scenario Data";
+  clone.meta.label = "Mock Demo";
   clone.daily = clone.daily.map((item) => ({ ...item, receiptRevenueCents: Math.round(item.receiptRevenueCents * (isWeekend(item.date) ? 1.14 : 1.08)), lineRevenueCents: Math.round(item.lineRevenueCents * 1.09), orderCount: Math.round(item.orderCount * 1.1), itemsSold: roundValue(item.itemsSold * 1.12), takeawayRevenueCents: Math.round(item.takeawayRevenueCents * 1.2), tables: Math.round(item.tables * 1.05), staff: Math.max(item.staff, Math.round(item.staff * 1.08)) }));
   clone.hourly = clone.hourly.map((item) => ({ ...item, lineRevenueCents: Math.round(item.lineRevenueCents * (item.hour >= 18 && item.hour <= 21 ? 1.18 : 1.05)), itemsSold: roundValue(item.itemsSold * 1.1), tables: Math.round(item.tables * 1.06) }));
   clone.productDaily = clone.productDaily.map((item) => ({ ...item, lineRevenueCents: Math.round(item.lineRevenueCents * ((item.category || "").includes("Burgers") ? 1.18 : 1.09)), units: roundValue(item.units * 1.08), orders: Math.round(item.orders * 1.05) }));

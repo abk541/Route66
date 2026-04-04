@@ -8,161 +8,218 @@
   </head>
   <body>
     <div class="app-shell">
-      <header class="topbar">
-        <div class="topbar-main">
-          <div class="brand-cluster">
-            <div class="brand-mark">Restaurant Performance</div>
+      <button class="shell-menu-button" id="shell-menu-button" type="button" aria-label="Open menu">=</button>
 
-            <div class="page-heading">
-              <span class="page-label">Restaurant intelligence</span>
-              <strong id="page-title">Dashboard</strong>
+      <aside class="sidebar" id="app-sidebar">
+        <div class="sidebar-top">
+          <button class="sidebar-toggle-button" id="sidebar-toggle-button" type="button" aria-label="Toggle menu">=</button>
+          <div class="sidebar-brand">
+            <div class="brand-mark">sellerboard</div>
+            <div class="sidebar-subtitle">Restaurant intelligence</div>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <div class="sidebar-section-label">Navigation</div>
+          <nav class="sidebar-nav" aria-label="Primary">
+            <button class="sidebar-link active" data-page="dashboard">
+              <span class="sidebar-link-icon">D</span>
+              <span>Dashboard</span>
+            </button>
+            <button class="sidebar-link" data-page="explorer" data-mode="products">
+              <span class="sidebar-link-icon">P</span>
+              <span>Products</span>
+            </button>
+            <button class="sidebar-link" data-page="matrix">
+              <span class="sidebar-link-icon">Q</span>
+              <span>Magic Menu Quadrant</span>
+            </button>
+            <button class="sidebar-link" data-page="transactions">
+              <span class="sidebar-link-icon">T</span>
+              <span>POS Transactions</span>
+            </button>
+            <button class="sidebar-link" data-page="employees">
+              <span class="sidebar-link-icon">E</span>
+              <span>Employees</span>
+            </button>
+            <button class="sidebar-link" data-page="purchasing">
+              <span class="sidebar-link-icon">B</span>
+              <span>Purchasing</span>
+            </button>
+            <button class="sidebar-link" data-page="recipes">
+              <span class="sidebar-link-icon">R</span>
+              <span>Recipes</span>
+            </button>
+            <button class="sidebar-link" data-page="costs">
+              <span class="sidebar-link-icon">I</span>
+              <span>Indirect Expenses</span>
+            </button>
+            <button class="sidebar-link" data-page="settings">
+              <span class="sidebar-link-icon">S</span>
+              <span>Settings</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="sidebar-group sidebar-group-secondary">
+          <div class="sidebar-section-label">Display</div>
+          <button class="sidebar-theme-toggle" id="theme-toggle" type="button">
+            <span class="sidebar-link-icon">L</span>
+            <span id="theme-toggle-label">Light Theme</span>
+          </button>
+
+          <label class="top-select sidebar-select">
+            <span>Role</span>
+            <select id="role-select"></select>
+          </label>
+
+          <div class="dataset-switcher sidebar-dataset-switcher">
+            <button class="dataset-button active" data-dataset="live">CSV Data</button>
+            <button class="dataset-button" data-dataset="scenario">Mock Demo</button>
+          </div>
+
+          <div class="user-pill">demo@route66</div>
+        </div>
+      </aside>
+
+      <div class="shell-backdrop" id="shell-backdrop"></div>
+
+      <div class="app-content">
+        <header class="topbar">
+          <div class="topbar-main">
+            <div class="brand-cluster">
+              <div class="page-heading">
+                <span class="page-label">Restaurant intelligence</span>
+                <strong id="page-title">Dashboard</strong>
+              </div>
+
+              <label class="top-select mobile-page-picker" for="mobile-page-select">
+                <span>Page</span>
+                <select id="mobile-page-select"></select>
+              </label>
             </div>
 
-            <label class="top-select mobile-page-picker" for="mobile-page-select">
-              <span>Page</span>
-              <select id="mobile-page-select"></select>
-            </label>
+            <div class="topbar-actions">
+              <label class="control-select utility-select utility-select-compact">
+                <span>Revenue</span>
+                <select id="revenue-mode">
+                  <option value="gross">Gross Sales</option>
+                  <option value="net">Net Sales</option>
+                </select>
+              </label>
 
-            <nav class="primary-nav" aria-label="Primary">
-              <button class="nav-link active" data-page="dashboard">Dashboard</button>
-              <button class="nav-link" data-page="explorer">Explorer</button>
-              <button class="nav-link" data-page="heatmap">Heatmap</button>
-              <button class="nav-link" data-page="trends">Trends</button>
-              <button class="nav-link" data-page="matrix">Matrix</button>
-              <button class="nav-link" data-page="transactions">Transactions</button>
-              <button class="nav-link" data-page="employees">Employees</button>
-              <button class="nav-link" data-page="purchasing">Purchasing</button>
-              <button class="nav-link" data-page="recipes">Recipes</button>
-              <button class="nav-link" data-page="costs">Expenses</button>
-              <button class="nav-link" data-page="settings">Settings</button>
-            </nav>
+              <label class="control-select utility-select utility-select-compact">
+                <span>Comparison</span>
+                <select id="compare-mode">
+                  <option value="none">Do Not Compare</option>
+                  <option value="previous">Compare with Previous Period</option>
+                  <option value="lastYear">Compare with Same Period Last Year</option>
+                </select>
+              </label>
+
+              <label class="control-select utility-select utility-select-compact">
+                <span>Preset</span>
+                <select id="range-preset"></select>
+              </label>
+
+              <button id="toggle-filters" class="control-button">Select Time Range</button>
+            </div>
           </div>
 
-          <div class="topbar-actions">
-            <label class="top-select">
-              <span>Role</span>
-              <select id="role-select"></select>
-            </label>
-
-            <div class="dataset-switcher">
-              <button class="dataset-button active" data-dataset="live">CSV Data</button>
-              <button class="dataset-button" data-dataset="scenario">Scenario Data</button>
+          <div class="search-row">
+            <div class="search-panel">
+              <label class="search-shell" for="search-input">
+                <span class="visually-hidden">Search and filter</span>
+                <input
+                  id="search-input"
+                  type="search"
+                  autocomplete="off"
+                  placeholder="Search products, article numbers, product groups, employees, or employee numbers"
+                />
+              </label>
+              <div class="suggestions-shell" id="search-suggestions"></div>
             </div>
 
-            <div class="user-pill">Account</div>
-          </div>
-        </div>
-
-        <div class="search-row">
-          <div class="search-panel">
-            <label class="search-shell" for="search-input">
-              <span class="visually-hidden">Search and filter</span>
-              <input
-                id="search-input"
-                type="search"
-                autocomplete="off"
-                placeholder="Search products, article numbers, product groups, employees, or employee numbers"
-              />
+            <label class="control-select utility-select">
+              <span>Restaurant</span>
+              <select id="restaurant-select"></select>
             </label>
-            <div class="suggestions-shell" id="search-suggestions"></div>
+
+            <button id="apply-search" class="control-button primary">Filter</button>
           </div>
 
-          <button id="apply-search" class="control-button primary">Filter</button>
-        </div>
+          <div class="selected-filter-row">
+            <div class="chip-strip" id="selected-filters"></div>
+            <button id="clear-search" class="link-button">Clear filters</button>
+          </div>
 
-        <div class="selected-filter-row">
-          <div class="chip-strip" id="selected-filters"></div>
-          <button id="clear-search" class="link-button">Clear filters</button>
-        </div>
+          <div class="control-row dashboard-utility-row">
+            <div class="status-row">
+              <article class="status-chip">
+                <span>Dataset</span>
+                <strong id="meta-dataset">CSV Data</strong>
+              </article>
+              <article class="status-chip">
+                <span>Coverage</span>
+                <strong id="meta-range">Loading...</strong>
+              </article>
+              <article class="status-chip">
+                <span>Rows</span>
+                <strong id="meta-rows">0</strong>
+              </article>
+              <article class="status-chip">
+                <span>Products</span>
+                <strong id="meta-products">0</strong>
+              </article>
+              <article class="status-chip">
+                <span>Staff</span>
+                <strong id="meta-staff">0</strong>
+              </article>
+            </div>
+          </div>
 
-        <div class="control-row">
-          <label class="control-select">
-            <span>Restaurant</span>
-            <select id="restaurant-select"></select>
-          </label>
+          <div class="filter-drawer" id="filter-drawer">
+            <label class="control-select">
+              <span>Start</span>
+              <input id="start-date" type="date" />
+            </label>
 
-          <label class="control-select">
-            <span>Preset</span>
-            <select id="range-preset"></select>
-          </label>
+            <label class="control-select">
+              <span>End</span>
+              <input id="end-date" type="date" />
+            </label>
 
-          <button id="toggle-filters" class="control-button">More options</button>
-        </div>
+            <label class="control-select">
+              <span>Sort</span>
+              <select id="table-sort">
+                <option value="marginCents">Margin</option>
+                <option value="grossRevenueCents">Revenue</option>
+                <option value="units">Units</option>
+                <option value="orders">Orders</option>
+                <option value="tables">Tables</option>
+                <option value="canceledUnits">Cancelled</option>
+              </select>
+            </label>
 
-        <div class="filter-drawer" id="filter-drawer">
-          <label class="control-select">
-            <span>Revenue</span>
-            <select id="revenue-mode">
-              <option value="gross">Gross Revenue</option>
-              <option value="net">Net Revenue</option>
-            </select>
-          </label>
+            <button id="apply-range" class="control-button primary">Apply</button>
+            <button id="reset-range" class="control-button">Reset</button>
+          </div>
+        </header>
 
-          <label class="control-select">
-            <span>Comparison</span>
-            <select id="compare-mode">
-              <option value="none">Do Not Compare</option>
-              <option value="previous">Compare with Previous Period</option>
-              <option value="lastYear">Compare with Same Period Last Year</option>
-            </select>
-          </label>
+        <main class="dashboard-main">
+          <div class="dashboard-cluster-nav" id="dashboard-cluster-nav">
+            <button class="dashboard-tab active" data-dashboard-page="dashboard">Tiles</button>
+            <button class="dashboard-tab" data-dashboard-page="matrix">Graphic</button>
+            <button class="dashboard-tab" data-dashboard-page="costs">P&amp;L</button>
+            <button class="dashboard-tab" data-dashboard-page="heatmap">Map</button>
+            <button class="dashboard-tab" data-dashboard-page="trends">Trends</button>
+          </div>
 
-          <label class="control-select">
-            <span>Start</span>
-            <input id="start-date" type="date" />
-          </label>
+          <section class="metric-strip" id="preset-grid"></section>
 
-          <label class="control-select">
-            <span>End</span>
-            <input id="end-date" type="date" />
-          </label>
-
-          <label class="control-select">
-            <span>Sort</span>
-            <select id="table-sort">
-              <option value="marginCents">Margin</option>
-              <option value="grossRevenueCents">Revenue</option>
-              <option value="units">Units</option>
-              <option value="orders">Orders</option>
-              <option value="tables">Tables</option>
-              <option value="canceledUnits">Cancelled</option>
-            </select>
-          </label>
-
-          <button id="apply-range" class="control-button primary">Apply</button>
-          <button id="reset-range" class="control-button">Reset</button>
-        </div>
-
-        <div class="status-row">
-          <article class="status-chip">
-            <span>Dataset</span>
-            <strong id="meta-dataset">CSV Data</strong>
-          </article>
-          <article class="status-chip">
-            <span>Coverage</span>
-            <strong id="meta-range">Loading...</strong>
-          </article>
-          <article class="status-chip">
-            <span>Rows</span>
-            <strong id="meta-rows">0</strong>
-          </article>
-          <article class="status-chip">
-            <span>Products</span>
-            <strong id="meta-products">0</strong>
-          </article>
-          <article class="status-chip">
-            <span>Staff</span>
-            <strong id="meta-staff">0</strong>
-          </article>
-        </div>
-      </header>
-
-      <main class="dashboard-main">
-        <section class="metric-strip" id="preset-grid"></section>
-
-        <section class="workspace-panel">
-          <section class="workspace-view active" data-view="dashboard">
-            <div class="section-toolbar">
+          <section class="workspace-panel">
+            <section class="workspace-view active" data-view="dashboard">
+              <div class="section-toolbar">
               <div class="section-title-group">
                 <p class="section-caption">Overview</p>
                 <h2>Most important KPIs</h2>
@@ -225,6 +282,7 @@
               </div>
             </div>
 
+            <div id="explorer-highlight" class="explorer-highlight"></div>
             <div class="summary-row" id="explorer-summary"></div>
             <div id="explorer-table" class="table-shell"></div>
           </section>
@@ -642,7 +700,8 @@
         <footer class="footer-strip">
           Local build. Notes, wages, recipe changes, expenses, and permissions are stored in this browser until shared storage is connected.
         </footer>
-      </main>
+        </main>
+      </div>
     </div>
 
     <div class="modal-shell hidden" id="app-modal">
