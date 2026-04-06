@@ -83,11 +83,38 @@
       <div class="app-content">
         <header class="topbar">
           <div class="topbar-main">
-            <div class="brand-cluster">
+            <div class="dashboard-topline">
               <div class="page-heading">
                 <span class="page-label">Restaurant intelligence</span>
                 <strong id="page-title">Dashboard</strong>
               </div>
+
+              <div class="dashboard-cluster-nav" id="dashboard-cluster-nav">
+                <button class="dashboard-tab active" data-dashboard-page="dashboard">
+                  <span class="dashboard-tab-icon">▦</span>
+                  <span>Tiles</span>
+                </button>
+                <button class="dashboard-tab" data-dashboard-page="matrix">
+                  <span class="dashboard-tab-icon">↗</span>
+                  <span>Graphic</span>
+                </button>
+                <button class="dashboard-tab" data-dashboard-page="costs">
+                  <span class="dashboard-tab-icon">≡</span>
+                  <span>P&amp;L</span>
+                </button>
+                <button class="dashboard-tab" data-dashboard-page="heatmap">
+                  <span class="dashboard-tab-icon">⌖</span>
+                  <span>Map</span>
+                </button>
+                <button class="dashboard-tab" data-dashboard-page="trends">
+                  <span class="dashboard-tab-icon">⤴</span>
+                  <span>Trends</span>
+                </button>
+              </div>
+
+              <button class="top-avatar-chip" type="button" aria-label="Account">
+                <span>A</span>
+              </button>
 
               <label class="top-select mobile-page-picker" for="mobile-page-select">
                 <span>Page</span>
@@ -95,40 +122,18 @@
               </label>
             </div>
 
-            <div class="dashboard-cluster-nav" id="dashboard-cluster-nav">
-              <button class="dashboard-tab active" data-dashboard-page="dashboard">Tiles</button>
-              <button class="dashboard-tab" data-dashboard-page="matrix">Graphic</button>
-              <button class="dashboard-tab" data-dashboard-page="costs">P&amp;L</button>
-              <button class="dashboard-tab" data-dashboard-page="heatmap">Map</button>
-              <button class="dashboard-tab" data-dashboard-page="trends">Trends</button>
-            </div>
-
             <div class="topbar-actions">
-              <label class="control-select utility-select utility-select-compact">
-                <span>Revenue</span>
-                <select id="revenue-mode">
-                  <option value="gross">Gross Sales</option>
-                  <option value="net">Net Sales</option>
-                </select>
-              </label>
-
-              <label class="control-select utility-select utility-select-compact">
-                <span>Comparison</span>
-                <select id="compare-mode">
-                  <option value="none">Do Not Compare</option>
-                  <option value="previous">Compare with Previous Period</option>
-                  <option value="lastYear">Compare with Same Period Last Year</option>
-                </select>
-              </label>
-
-              <label class="control-select utility-select utility-select-compact">
-                <span>Preset</span>
-                <select id="range-preset"></select>
-              </label>
-
-              <button id="toggle-filters" class="control-button">Select Time Range</button>
+              <button class="top-icon-button top-icon-help" type="button" aria-label="Help">?</button>
+              <button class="top-icon-button" type="button" aria-label="History">◌</button>
+              <button class="top-icon-button" type="button" aria-label="Settings">☼</button>
+              <button class="top-icon-button top-icon-badge" type="button" aria-label="Notifications">
+                <span>99+</span>
+              </button>
+              <div class="top-user-pill">amitschi@mg.de</div>
             </div>
           </div>
+
+          <button id="toggle-filters" class="visually-hidden" type="button">Select Time Range</button>
 
           <div class="search-row">
             <div class="search-panel">
@@ -144,9 +149,31 @@
               <div class="suggestions-shell" id="search-suggestions"></div>
             </div>
 
-            <label class="control-select utility-select">
-              <span>Restaurant</span>
+            <label class="control-select utility-select utility-select-revenue">
+              <span class="visually-hidden">Revenue</span>
+              <select id="revenue-mode">
+                <option value="gross">Gross Sales</option>
+                <option value="net">Net Sales</option>
+              </select>
+            </label>
+
+            <label class="control-select utility-select utility-select-compare">
+              <span class="visually-hidden">Time Range</span>
+              <select id="compare-mode">
+                <option value="none">Time Range</option>
+                <option value="previous">Compare with Previous Period</option>
+                <option value="lastYear">Compare with Same Period Last Year</option>
+              </select>
+            </label>
+
+            <label class="control-select utility-select utility-select-market">
+              <span class="visually-hidden">Restaurant</span>
               <select id="restaurant-select"></select>
+            </label>
+
+            <label class="control-select utility-select utility-select-preset visually-hidden">
+              <span>Preset</span>
+              <select id="range-preset"></select>
             </label>
 
             <button id="apply-search" class="control-button primary">Filter</button>
@@ -183,6 +210,11 @@
           </div>
 
           <div class="filter-drawer" id="filter-drawer">
+            <label class="control-select">
+              <span>Preset</span>
+              <select id="range-preset-drawer"></select>
+            </label>
+
             <label class="control-select">
               <span>Start</span>
               <input id="start-date" type="date" />

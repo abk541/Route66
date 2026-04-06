@@ -137,7 +137,7 @@ const state = {
   trendMetric: "grossRevenueCents",
   trendGrouping: "last30d",
   revenueMode: "gross",
-  compareMode: "previous",
+  compareMode: "none",
   roleKey: "manager",
   restaurantKey: "primary-restaurant",
   rangePreset: "currentMonth",
@@ -191,7 +191,7 @@ function initializeControls() {
   fillSelect(document.getElementById("role-select"), ROLE_OPTIONS.map((item) => [item.key, item.label]));
   fillSelect(document.getElementById("mobile-page-select"), PAGE_ORDER.map((page) => [page, PAGE_LABELS[page]]));
   fillSelect(document.getElementById("restaurant-select"), [["primary-restaurant", "Primary Restaurant"]]);
-  fillSelect(document.getElementById("range-preset"), RANGE_PRESETS);
+  fillSelect(document.getElementById("range-preset-drawer"), RANGE_PRESETS);
   fillSelect(document.getElementById("trend-metric-select"), TREND_METRICS);
   fillSelect(document.getElementById("trend-preset-select"), TREND_GROUPINGS);
   fillSelect(document.getElementById("employee-group-select"), GROUP_OPTIONS.map((item) => [item.key, item.label]));
@@ -280,7 +280,7 @@ function wireEvents() {
     renderAll();
   });
 
-  document.getElementById("range-preset").addEventListener("change", (event) => {
+  document.getElementById("range-preset-drawer").addEventListener("change", (event) => {
     applyRangePreset(event.target.value);
     renderAll();
   });
@@ -471,7 +471,7 @@ function syncControls() {
   document.getElementById("restaurant-select").value = state.restaurantKey;
   document.getElementById("revenue-mode").value = state.revenueMode;
   document.getElementById("compare-mode").value = state.compareMode;
-  document.getElementById("range-preset").value = state.rangePreset;
+  document.getElementById("range-preset-drawer").value = state.rangePreset;
   document.getElementById("trend-metric-select").value = state.trendMetric;
   document.getElementById("trend-preset-select").value = state.trendGrouping;
   document.getElementById("start-date").value = state.startDate;
@@ -1249,21 +1249,22 @@ function buildMatrixChart(matrix) {
       .map((row) => row.id),
   );
   const quadrants = [
-    { label: "Hidden Gems", x: padding.left + 12, y: padding.top + 22, fill: "#dff3f3", text: "#4e9f9d" },
-    { label: "Greatest Hits", x: width - 156, y: padding.top + 22, fill: "#e7eefc", text: "#5b8fd8" },
-    { label: "Underperformers", x: padding.left + 12, y: height - 62, fill: "#fff0d9", text: "#d29a34" },
+    { label: "Hidden Gems", x: padding.left + 12, y: padding.top + 22, fill: "#23363a", text: "#6bc7c0" },
+    { label: "Greatest Hits", x: width - 156, y: padding.top + 22, fill: "#243249", text: "#79aef2" },
+    { label: "Underperformers", x: padding.left + 12, y: height - 62, fill: "#433522", text: "#efbc63" },
   ];
 
   return `
     <svg viewBox="0 0 ${width} ${height}" aria-label="Product matrix">
-      <rect x="${padding.left}" y="${padding.top}" width="${avgX - padding.left}" height="${avgY - padding.top}" fill="#f3f9f9"></rect>
-      <rect x="${avgX}" y="${padding.top}" width="${padding.left + innerWidth - avgX}" height="${avgY - padding.top}" fill="#f3f5fb"></rect>
-      <rect x="${padding.left}" y="${avgY}" width="${avgX - padding.left}" height="${padding.top + innerHeight - avgY}" fill="#fff8ed"></rect>
-      <rect x="${avgX}" y="${avgY}" width="${padding.left + innerWidth - avgX}" height="${padding.top + innerHeight - avgY}" fill="#f6fbf3"></rect>
-      <line x1="${padding.left}" y1="${padding.top + innerHeight}" x2="${padding.left + innerWidth}" y2="${padding.top + innerHeight}" stroke="#d4dbe6"></line>
-      <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + innerHeight}" stroke="#d4dbe6"></line>
-      <line x1="${avgX}" y1="${padding.top}" x2="${avgX}" y2="${padding.top + innerHeight}" stroke="#ced5e3"></line>
-      <line x1="${padding.left}" y1="${avgY}" x2="${padding.left + innerWidth}" y2="${avgY}" stroke="#ced5e3"></line>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#1d2128"></rect>
+      <rect x="${padding.left}" y="${padding.top}" width="${avgX - padding.left}" height="${avgY - padding.top}" fill="#1f2e31"></rect>
+      <rect x="${avgX}" y="${padding.top}" width="${padding.left + innerWidth - avgX}" height="${avgY - padding.top}" fill="#1f2836"></rect>
+      <rect x="${padding.left}" y="${avgY}" width="${avgX - padding.left}" height="${padding.top + innerHeight - avgY}" fill="#31271d"></rect>
+      <rect x="${avgX}" y="${avgY}" width="${padding.left + innerWidth - avgX}" height="${padding.top + innerHeight - avgY}" fill="#212e23"></rect>
+      <line x1="${padding.left}" y1="${padding.top + innerHeight}" x2="${padding.left + innerWidth}" y2="${padding.top + innerHeight}" stroke="#465061"></line>
+      <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + innerHeight}" stroke="#465061"></line>
+      <line x1="${avgX}" y1="${padding.top}" x2="${avgX}" y2="${padding.top + innerHeight}" stroke="#50596b"></line>
+      <line x1="${padding.left}" y1="${avgY}" x2="${padding.left + innerWidth}" y2="${avgY}" stroke="#50596b"></line>
       ${quadrants
         .map(
           (quadrant) => `
@@ -1274,8 +1275,8 @@ function buildMatrixChart(matrix) {
           `,
         )
         .join("")}
-      <text x="${padding.left}" y="${padding.top - 12}" fill="#606b79" font-size="13" font-weight="700">Retention</text>
-      <text x="${width - 86}" y="${height - 14}" fill="#606b79" font-size="13" font-weight="700">Popularity</text>
+      <text x="${padding.left}" y="${padding.top - 12}" fill="#9ba7b8" font-size="13" font-weight="700">Retention</text>
+      <text x="${width - 86}" y="${height - 14}" fill="#9ba7b8" font-size="13" font-weight="700">Popularity</text>
       ${visibleRows
         .map((row) => {
           const x = padding.left + scaleMatrixSales(row.grossRevenueCents, salesCeiling) * innerWidth;
@@ -1283,9 +1284,9 @@ function buildMatrixChart(matrix) {
           const showLabel = labeledProducts.has(row.id);
           return `
             <g data-point-product="${row.id}">
-              <circle cx="${x}" cy="${y}" r="${showLabel ? 7 : 5.5}" fill="#ffffff" opacity="0.95"></circle>
+              <circle cx="${x}" cy="${y}" r="${showLabel ? 7 : 5.5}" fill="#dbe4f0" opacity="0.95"></circle>
               <circle cx="${x}" cy="${y}" r="${showLabel ? 5 : 4}" fill="${quadrantColor(row.quadrant)}" opacity="${showLabel ? "0.94" : "0.8"}"></circle>
-              ${showLabel ? `<text x="${x}" y="${y - 14}" text-anchor="middle" fill="#5a6572" font-size="10.5">${escapeHtml(trimLabel(row.name, 16))}</text>` : ""}
+              ${showLabel ? `<text x="${x}" y="${y - 14}" text-anchor="middle" fill="#c3ceda" font-size="10.5">${escapeHtml(trimLabel(row.name, 16))}</text>` : ""}
             </g>
           `;
         })
