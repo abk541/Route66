@@ -579,7 +579,7 @@ function renderDashboard(context) {
 }
 
 function renderExplorer(context) {
-  const titleMap = { products: "Products", categories: "Product Groups", team: "Employees" };
+  const titleMap = { products: "Product", categories: "Product Group", team: "Employee" };
   const source =
     state.explorerMode === "products"
       ? context.productRows
@@ -588,9 +588,33 @@ function renderExplorer(context) {
         : context.employeeRows;
   const rows = sortEntityRows(source, state.tableSort);
   document.getElementById("explorer-title").textContent = titleMap[state.explorerMode];
+  document.getElementById("explorer-range-title").textContent = explorerRangeTitle();
   document.getElementById("explorer-highlight").innerHTML = buildExplorerHighlight(context);
   document.getElementById("explorer-summary").innerHTML = buildExplorerSummary(context, rows);
   document.getElementById("explorer-table").innerHTML = buildExplorerTable(rows);
+}
+
+function explorerRangeTitle() {
+  const labels = {
+    today: "Today",
+    yesterday: "Yesterday",
+    currentMonth: "Current Month",
+    currentMonthForecast: "Current Month",
+    lastMonth: "Last Month",
+    last7: "Last 7 Days",
+    last14: "Last 14 Days",
+    last30: "Last 30 Days",
+    thisWeek: "This Week",
+    lastWeek: "Last Week",
+    twoWeeksAgo: "Week Before Last",
+    threeWeeksAgo: "3 Weeks Ago",
+    thisQuarter: "This Quarter",
+    lastQuarter: "Last Quarter",
+    twoQuartersAgo: "2 Quarters Ago",
+    threeQuartersAgo: "3 Quarters Ago",
+    custom: "Selected Range",
+  };
+  return labels[state.rangePreset] || "Today";
 }
 
 function renderHeatmap(context) {

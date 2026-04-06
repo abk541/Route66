@@ -272,17 +272,30 @@
           </section>
 
           <section class="workspace-view" data-view="explorer">
-            <div class="section-toolbar">
-              <div class="section-title-group">
-                <p class="section-caption">Revenue explorer</p>
-                <h2 id="explorer-title">Products</h2>
+            <div class="explorer-shell">
+              <div class="explorer-topbar">
+                <div class="explorer-range-title" id="explorer-range-title">Today</div>
+                <div class="explorer-tabs" id="explorer-modes">
+                  <button class="mode-switch active" data-mode="products">
+                    <span class="explorer-tab-icon">▢</span>
+                    <span>Products</span>
+                  </button>
+                  <button class="mode-switch" data-mode="categories">
+                    <span class="explorer-tab-icon">▢</span>
+                    <span>Product Group</span>
+                  </button>
+                  <button class="mode-switch" data-mode="team">
+                    <span class="explorer-tab-icon">▢</span>
+                    <span>Employees</span>
+                  </button>
+                </div>
               </div>
 
-              <div class="section-tabs" id="explorer-modes">
-                <button class="mode-switch active" data-mode="products">Products</button>
-                <button class="mode-switch" data-mode="categories">Product Groups</button>
-                <button class="mode-switch" data-mode="team">Employees</button>
+              <div class="explorer-subline">
+                <div class="explorer-subline-active"></div>
               </div>
+
+              <div class="explorer-section-title" id="explorer-title">Product</div>
             </div>
 
             <div id="explorer-highlight" class="explorer-highlight"></div>
