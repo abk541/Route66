@@ -2170,11 +2170,12 @@ body[data-theme="light"] .sidebar {
 
 .metric-card-head {
   margin: 0 -12px;
-  padding: 10px 11px 9px;
+  padding: 8px 10px 8px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.22);
   background: var(--card-accent, #6f86f0);
   align-items: center;
   text-align: center;
+  gap: 8px;
 }
 
 .metric-title,
@@ -2197,11 +2198,20 @@ body[data-theme="light"] .sidebar {
 }
 
 .metric-card-head .metric-title {
-  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.2em;
+  padding: 0 4px;
+  font-size: 0.72rem;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
 }
 
 .metric-card-head .metric-date {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
+  line-height: 1.1;
+  white-space: nowrap;
   opacity: 0.82;
 }
 
