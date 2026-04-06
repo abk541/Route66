@@ -519,12 +519,7 @@ function renderFilterDrawer() {
 }
 
 function hydrateHeaderMeta() {
-  const data = currentDataset();
-  document.getElementById("meta-dataset").textContent = data.meta.label;
-  document.getElementById("meta-range").textContent = formatRange(state.startDate, state.endDate);
-  document.getElementById("meta-rows").textContent = numberFormatter.format(data.meta.rowsRead);
-  document.getElementById("meta-products").textContent = numberFormatter.format(data.meta.uniqueProducts);
-  document.getElementById("meta-staff").textContent = numberFormatter.format(data.meta.uniqueEmployees);
+  return;
 }
 
 function setPage(page, options = {}) {
@@ -547,7 +542,7 @@ function sidebarActivePage(page) {
 
 function renderPresetCards() {
   state.cardModels = CARD_PRESETS.map(([key, label]) => buildCardModel(key, label));
-  const accents = ["#6f86f0", "#8fbfd9", "#7fc1c7", "#8ccbb6", "#84bb86"];
+  const accents = ["#6f86f0", "#8ebdd8", "#7fbfc5", "#86c7b8", "#82be84"];
   document.getElementById("preset-grid").innerHTML = state.cardModels
     .map(
       (card, index) => `
