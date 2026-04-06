@@ -547,7 +547,7 @@ function sidebarActivePage(page) {
 
 function renderPresetCards() {
   state.cardModels = CARD_PRESETS.map(([key, label]) => buildCardModel(key, label));
-  const accents = ["#7c8ff4", "#90c6eb", "#88d4c4", "#8ed0a1", "#98c686"];
+  const accents = ["#6f86f0", "#8fbfd9", "#7fc1c7", "#8ccbb6", "#84bb86"];
   document.getElementById("preset-grid").innerHTML = state.cardModels
     .map(
       (card, index) => `

@@ -1916,24 +1916,12 @@ body[data-theme="light"] .sidebar {
 
 .selected-filter-row {
   margin-top: 0;
-  padding: 6px 10px 0;
+  padding: 4px 10px 0;
   background: #202020;
-}
-
-.dashboard-utility-row {
-  margin-top: 0;
-  padding: 6px 10px 8px;
-  background: #202020;
-  border: 0;
-  border-radius: 0;
-}
-
-.status-row {
-  margin-top: 0;
 }
 
 .dashboard-main {
-  margin-top: 12px;
+  margin-top: 4px;
 }
 
 .dashboard-cluster-nav {
@@ -2096,11 +2084,12 @@ body[data-theme="light"] .sidebar {
   border-right: 1px solid #313131;
   border-bottom: 1px solid #313131;
   border-top: 1px solid #313131;
+  margin-top: 4px;
 }
 
 .metric-card {
   min-height: 150px;
-  padding: 10px 12px 12px;
+  padding: 0 12px 12px;
   border-radius: 0;
   border: 1px solid #313131;
   border-left-width: 0;
@@ -2112,16 +2101,18 @@ body[data-theme="light"] .sidebar {
   border-left-width: 1px;
 }
 
-.metric-card::before {
-  height: 2px;
-}
-
 .metric-title,
 .metric-date,
 .metric-label,
 .metric-delta,
 .metric-stat span {
   font-size: 0.65rem;
+}
+
+.metric-card-head {
+  margin: 0 -12px;
+  padding: 8px 10px 7px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.18);
 }
 
 .metric-value {
@@ -2143,6 +2134,36 @@ body[data-theme="light"] .sidebar {
 .metric-more {
   color: #7a92ff;
   font-size: 0.7rem;
+}
+
+.status-inline-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 2px 0;
+  color: #8f96a3;
+  overflow-x: auto;
+}
+
+.status-inline-row .status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: #8f96a3;
+  flex: 0 0 auto;
+}
+
+.status-inline-row .status-chip span,
+.status-inline-row .status-chip strong {
+  font-size: 0.6rem;
+}
+
+.status-inline-row .status-chip strong {
+  color: #b8bfca;
 }
 
 .control-button,
