@@ -21,26 +21,65 @@ const UNIT_OPTIONS = [
   { value: "l", label: "l (Liter)" },
   { value: "ml", label: "ml (Milliliter)" },
   { value: "cl", label: "cl (Cocktails, Sauces)" },
-  { value: "piece", label: "Stk. (Piece)" },
+  { value: "piece", label: "pcs. (Piece)" },
   { value: "portion", label: "Portion" },
 ];
 
 const PAGE_LABELS = {
   dashboard: "Dashboard",
   explorer: "Products",
-  heatmap: "Heatmap",
+  heatmap: "Grafik",
   trends: "Trends",
-  matrix: "Magic Menu Quadrant",
+  matrix: "Product Matrix",
   transactions: "POS Transactions",
   employees: "Employees",
   purchasing: "Purchasing",
   recipes: "Recipes",
-  costs: "Indirect Expenses",
+  costs: "P&L",
+  auslastung: "Utilization",
   settings: "Settings",
 };
 
 const PAGE_ORDER = Object.keys(PAGE_LABELS);
-const DASHBOARD_CLUSTER_PAGES = ["dashboard", "matrix", "costs", "heatmap", "trends"];
+const DASHBOARD_CLUSTER_PAGES = ["dashboard", "heatmap"];
+
+const PNL_MONTHS = [
+  ["jan", "January"],
+  ["feb", "February"],
+  ["mar", "March"],
+  ["apr", "April"],
+  ["may", "May"],
+  ["jun", "June"],
+  ["jul", "July"],
+  ["aug", "August"],
+  ["sep", "September"],
+  ["oct", "October"],
+  ["nov", "November"],
+  ["dec", "December"],
+];
+
+const PNL_ROWS = [
+  { id: "personnel", label: "Personnel Costs", type: "expense" },
+  { id: "revenue", label: "Revenue", type: "income" },
+  { id: "beverage-revenue", label: "Beverage Revenue", type: "income" },
+  { id: "fleet", label: "Fleet", type: "expense" },
+  { id: "advertising", label: "Advertising", type: "expense" },
+  { id: "taxes", label: "Taxes", type: "expense" },
+  { id: "insurance", label: "Insurance", type: "expense" },
+  { id: "energy", label: "Energy Costs", type: "expense" },
+  { id: "leasing", label: "Leasing Costs", type: "expense" },
+  { id: "maintenance", label: "Maintenance", type: "expense" },
+  { id: "it", label: "IT Costs", type: "expense" },
+  { id: "online-marketing", label: "Online Marketing", type: "expense" },
+  { id: "gallery", label: "Gallery", type: "expense" },
+  { id: "profit-sharing", label: "Profit Sharing", type: "expense" },
+  { id: "payroll-gz", label: "Payroll GZ", type: "expense" },
+  { id: "subcontractors", label: "Subcontractors", type: "expense" },
+  { id: "furniture-gz", label: "Furniture / GZ", type: "expense" },
+  { id: "subscriptions", label: "Other Subscriptions", type: "expense" },
+  { id: "dividend", label: "Dividend", type: "expense" },
+  { id: "other", label: "Other", type: "expense" },
+];
 
 const RANGE_PRESETS = [
   ["today", "Today"],
@@ -154,6 +193,9 @@ const state = {
   tableSort: "marginCents",
   cardModels: [],
   renderContext: null,
+  drilldownTab: "today",
+  sidebarDashSubOpen: true,
+  sidebarFoodSubOpen: true,
 };
 
 const runtimeCache = {
@@ -181,6 +223,7 @@ let localModel = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   localModel = loadLocalModel();
+  migratePermissions();
   initializeControls();
   applyRangePreset(state.rangePreset);
   wireEvents();
@@ -229,10 +272,44 @@ function syncDynamicSelects() {
 function wireEvents() {
   document.querySelectorAll(".sidebar-link").forEach((button) => {
     button.addEventListener("click", () => {
-      if (!isPageAllowed(button.dataset.page)) {
-        return;
-      }
+      if (button.classList.contains("sidebar-link--has-sub")) return;
+      if (!isPageAllowed(button.dataset.page)) return;
       setPage(button.dataset.page, { explorerMode: button.dataset.mode || null, closeSidebar: true });
+    });
+  });
+
+  document.getElementById("sidebar-dashboard-toggle").addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.sidebarDashSubOpen = !state.sidebarDashSubOpen;
+    syncSidebarSubNavs();
+  });
+
+  document.getElementById("sidebar-food-toggle").addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.sidebarFoodSubOpen = !state.sidebarFoodSubOpen;
+    syncSidebarSubNavs();
+  });
+
+  // Close sub-navs when clicking in main content area
+  document.querySelector(".app-content").addEventListener("click", () => {
+    if (window.innerWidth > 960) return; // desktop: keep open for nav ease
+    state.sidebarDashSubOpen = false;
+    state.sidebarFoodSubOpen = false;
+    syncSidebarSubNavs();
+  });
+
+  document.querySelectorAll(".sidebar-sub-link").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!isPageAllowed(button.dataset.page)) return;
+      setPage(button.dataset.page, { explorerMode: button.dataset.mode || null, closeSidebar: true });
+    });
+  });
+
+  document.querySelectorAll(".drilldown-tab").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.drilldownTab = button.dataset.drilldown;
+      renderDashboardDrilldown();
+      document.querySelectorAll(".drilldown-tab").forEach((b) => b.classList.toggle("active", b === button));
     });
   });
 
@@ -295,7 +372,11 @@ function wireEvents() {
   });
 
   document.getElementById("sidebar-toggle-button").addEventListener("click", () => {
-    document.body.classList.toggle("sidebar-open");
+    if (window.innerWidth <= 767) {
+      document.body.classList.toggle("sidebar-open");
+    } else {
+      document.body.classList.toggle("sidebar-collapsed");
+    }
   });
 
   document.getElementById("shell-backdrop").addEventListener("click", () => {
@@ -393,7 +474,7 @@ function buildRenderContext() {
     staffingRange: staffingRange.length ? staffingRange : null,
   });
   const comparison = buildComparisonModel(processed, filters, summary, state.startDate, state.endDate);
-  const categoryRows = state.currentPage === "explorer" ? aggregateRowsByKey(productRows, "category") : [];
+  const categoryRows = (state.currentPage === "explorer" || state.currentPage === "dashboard") ? aggregateRowsByKey(productRows, "category") : [];
   const heatmap = state.currentPage === "heatmap" ? buildHeatmapContext(processed) : { currentDays: [], compareDays: [] };
   const trend = state.currentPage === "trends" ? buildTrendContext(processed, filters) : { buckets: [] };
   const matrix = state.currentPage === "matrix" ? buildMatrixContext(productRows) : { rows: [], hiddenRows: [] };
@@ -426,11 +507,17 @@ function buildRenderContext() {
 }
 
 function renderActivePage(context) {
-  document.getElementById("preset-grid").style.display = state.currentPage === "dashboard" ? "grid" : "none";
+  const isDash = state.currentPage === "dashboard";
+  document.getElementById("preset-grid").style.display = isDash ? "grid" : "none";
+  const drilldownBar = document.getElementById("dashboard-drilldown-content");
+  const drilldownTabs = document.querySelector(".dashboard-drilldown-bar");
+  if (drilldownBar) drilldownBar.style.display = isDash ? "block" : "none";
+  if (drilldownTabs) drilldownTabs.style.display = isDash ? "flex" : "none";
   document.getElementById("dashboard-cluster-nav").style.display = DASHBOARD_CLUSTER_PAGES.includes(state.currentPage) ? "flex" : "none";
   if (state.currentPage === "dashboard") {
     renderPresetCards();
     renderDashboard(context);
+    renderDashboardDrilldown(context);
   } else if (state.currentPage === "explorer") {
     renderExplorer(context);
   } else if (state.currentPage === "heatmap") {
@@ -459,15 +546,27 @@ function needsProductRows(page) {
 }
 
 function needsEmployeeRows(page) {
-  return ["explorer", "employees"].includes(page);
+  return ["explorer", "employees", "dashboard"].includes(page);
 }
 
 function needsStaffingRange(page) {
   return ["dashboard", "heatmap", "transactions", "employees"].includes(page);
 }
 
+function syncSidebarSubNavs() {
+  const dashSub = document.getElementById("sidebar-dashboard-sub");
+  const foodSub = document.getElementById("sidebar-food-sub");
+  const dashBtn = document.getElementById("sidebar-dashboard-toggle");
+  const foodBtn = document.getElementById("sidebar-food-toggle");
+  if (dashSub) dashSub.classList.toggle("sidebar-sub-open", state.sidebarDashSubOpen);
+  if (foodSub) foodSub.classList.toggle("sidebar-sub-open", state.sidebarFoodSubOpen);
+  if (dashBtn) dashBtn.classList.toggle("sub-open", state.sidebarDashSubOpen);
+  if (foodBtn) foodBtn.classList.toggle("sub-open", state.sidebarFoodSubOpen);
+}
+
 function syncControls() {
-  document.getElementById("role-select").value = state.roleKey;
+  const roleEl = document.getElementById("role-select");
+  if (roleEl) roleEl.value = state.roleKey;
   document.getElementById("restaurant-select").value = state.restaurantKey;
   document.getElementById("revenue-mode").value = state.revenueMode;
   document.getElementById("compare-mode").value = state.compareMode;
@@ -476,6 +575,10 @@ function syncControls() {
   document.getElementById("trend-preset-select").value = state.trendGrouping;
   document.getElementById("start-date").value = state.startDate;
   document.getElementById("end-date").value = state.endDate;
+  const graphicStart = document.getElementById("graphic-start-date");
+  const graphicEnd = document.getElementById("graphic-end-date");
+  if (graphicStart) graphicStart.value = state.startDate;
+  if (graphicEnd) graphicEnd.value = state.endDate;
   document.getElementById("table-sort").value = state.tableSort;
   document.getElementById("page-title").textContent = PAGE_LABELS[state.currentPage];
 
@@ -490,9 +593,24 @@ function syncControls() {
   });
 
   document.querySelectorAll(".sidebar-link").forEach((button) => {
+    if (button.classList.contains("sidebar-link--has-sub")) {
+      const subId = button.id === "sidebar-dashboard-toggle" ? "sidebar-dashboard-sub" : "sidebar-food-sub";
+      const sub = document.getElementById(subId);
+      const childPages = sub ? [...sub.querySelectorAll(".sidebar-sub-link")].map((b) => b.dataset.page) : [];
+      const anyAllowed = childPages.some((page) => isPageAllowed(page));
+      button.hidden = !anyAllowed;
+      button.classList.toggle("active", childPages.includes(state.currentPage));
+      return;
+    }
     const allowed = isPageAllowed(button.dataset.page);
     button.hidden = !allowed;
     button.classList.toggle("active", sidebarActivePage(button.dataset.page) === sidebarActivePage(state.currentPage));
+  });
+
+  document.querySelectorAll(".sidebar-sub-link").forEach((button) => {
+    const isActive = button.dataset.page === state.currentPage &&
+      (button.dataset.mode ? button.dataset.mode === state.explorerMode : true);
+    button.classList.toggle("active", isActive);
   });
 
   document.querySelectorAll(".dashboard-tab").forEach((button) => {
@@ -511,6 +629,7 @@ function syncControls() {
     section.classList.toggle("active", section.dataset.view === state.currentPage);
   });
 
+  syncSidebarSubNavs();
 }
 
 function renderFilterDrawer() {
@@ -570,12 +689,60 @@ function renderPresetCards() {
 }
 
 function renderDashboard(context) {
-  document.getElementById("dashboard-kpi-list").innerHTML = buildDashboardKpiGroupsMarkup(
-    context.summary,
-    context.comparison.summary,
-  );
   document.getElementById("dashboard-main-table").innerHTML = buildDashboardTable(context.summary, context.comparison.summary);
   renderDashboardNote();
+}
+
+function renderDashboardDrilldown(context) {
+  if (!context) context = state.renderContext;
+  if (!context) return;
+  const el = document.getElementById("dashboard-drilldown-content");
+  if (!el) return;
+  const tab = state.drilldownTab;
+  const prevMode = state.explorerMode;
+  const isLowerRole = ["supervisor", "staff"].includes(state.roleKey);
+  if (tab === "today") {
+    // #379: lower-access roles see only heatmap-relevant KPIs (no financial data)
+    if (isLowerRole) {
+      el.innerHTML = buildHeatmapKpiSummaryTable(context.summary);
+    } else {
+      el.innerHTML = buildDashboardTable(context.summary, context.comparison.summary);
+    }
+  } else if (tab === "products") {
+    state.explorerMode = "products";
+    el.innerHTML = buildExplorerTable(sortEntityRows(context.productRows, state.tableSort));
+    state.explorerMode = prevMode;
+  } else if (tab === "groups") {
+    state.explorerMode = "categories";
+    el.innerHTML = buildExplorerTable(sortEntityRows(context.categoryRows, state.tableSort));
+    state.explorerMode = prevMode;
+  } else if (tab === "employees") {
+    state.explorerMode = "team";
+    el.innerHTML = buildExplorerTable(sortEntityRows(context.employeeRows, state.tableSort));
+    state.explorerMode = prevMode;
+  }
+}
+
+function buildHeatmapKpiSummaryTable(summary) {
+  const rows = [
+    ["Guests", numberFormatter.format(summary.guests)],
+    ["Tables", numberFormatter.format(summary.tables)],
+    ["Avg. Guests per Table", decimalFormatter.format(summary.averageGuestsPerTable)],
+    ["Staff Cost %", formatPercent(summary.staffCostPercent)],
+    ["Employees Present", numberFormatter.format(summary.employeeCount)],
+    ["Total Staff Hours", `${decimalFormatter.format(summary.totalStaffHours)} h`],
+    ["Avg. Kitchen Staff / Day", decimalFormatter.format(summary.averageStaffPerDayKitchen)],
+    ["Avg. Bar Staff / Day", decimalFormatter.format(summary.averageStaffPerDayBar)],
+    ["Avg. Service Staff / Day", decimalFormatter.format(summary.averageStaffPerDayService)],
+  ];
+  return `
+    <table>
+      <thead><tr><th>KPI</th><th>Value</th></tr></thead>
+      <tbody>
+        ${rows.map(([label, val]) => `<tr><td><strong>${label}</strong></td><td>${val}</td></tr>`).join("")}
+      </tbody>
+    </table>
+  `;
 }
 
 function renderExplorer(context) {
@@ -618,17 +785,11 @@ function explorerRangeTitle() {
 }
 
 function renderHeatmap(context) {
-  const heatmap = context.heatmap;
-  document.getElementById("heatmap-range-title").textContent = heatmapSectionTitle();
-  document.getElementById("heatmap-current-caption").textContent = heatmapCurrentCaption();
-  document.getElementById("heatmap-current-title").textContent = heatmapCurrentTitle();
-  document.getElementById("heatmap-compare-caption").textContent = heatmapCompareCaption();
-  document.getElementById("heatmap-compare-title").textContent = heatmapCompareTitle();
-  document.getElementById("heatmap-current-table").innerHTML = buildHeatmapTable(heatmap.currentDays);
-  document.getElementById("heatmap-compare-table").innerHTML = buildHeatmapTable(heatmap.compareDays);
-  document.getElementById("heatmap-legend").innerHTML = buildHeatmapLegend();
-  document.getElementById("heatmap-grid").innerHTML = buildHeatmapGrid(heatmap.currentDays);
-  renderHeatmapDetail(heatmap);
+  document.getElementById("heatmap-range-title").textContent = `Revenue and KPI development | ${formatRange(state.startDate, state.endDate)}`;
+  document.getElementById("graphic-chart-title").textContent = `${state.revenueMode === "gross" ? "Gross" : "Net"} revenue by period`;
+  document.getElementById("graphic-side-title").textContent = formatRange(state.startDate, state.endDate);
+  document.getElementById("graphic-combo-chart").innerHTML = buildGraphicComboChart(context.dailySeries);
+  document.getElementById("graphic-kpi-list").innerHTML = buildGraphicKpiPanel(context.summary, context.comparison.summary);
 }
 
 function renderTrend(context) {
@@ -682,7 +843,8 @@ function renderRecipes(context) {
 }
 
 function renderCosts(context) {
-  document.getElementById("expenses-table").innerHTML = buildExpensesTable(context.summary.rangeDays);
+  ensureMonthlyPnlModel(context);
+  document.getElementById("expenses-table").innerHTML = buildMonthlyPnlTable();
 }
 
 function renderSettings() {
@@ -1244,6 +1406,92 @@ function buildTrendSummary(buckets) {
   `;
 }
 
+function buildGraphicComboChart(dailySeries) {
+  if (!dailySeries.length) {
+    return "<div class=\"note-card\">No chart data for the selected range.</div>";
+  }
+  const width = 980;
+  const height = 360;
+  const padding = { top: 28, right: 42, bottom: 54, left: 54 };
+  const innerWidth = width - padding.left - padding.right;
+  const innerHeight = height - padding.top - padding.bottom;
+  const rows = dailySeries.map((day) => {
+    const gross = Math.max((day.receiptRevenueCents || 0) - (day.receiptRefundsCents || 0), 0);
+    const revenue = state.revenueMode === "gross" ? gross : Math.round(gross / VAT_RATE);
+    return {
+      date: day.date,
+      label: shortDate(day.date),
+      revenue,
+      lineValue: Math.max(day.orderCount || 0, 0),
+    };
+  });
+  const maxRevenue = Math.max(...rows.map((row) => row.revenue), 1);
+  const maxLine = Math.max(...rows.map((row) => row.lineValue), 1);
+  const slot = innerWidth / rows.length;
+  const barWidth = Math.max(8, Math.min(34, slot * 0.56));
+  const linePoints = rows.map((row, index) => ({
+    x: padding.left + slot * index + slot / 2,
+    y: padding.top + innerHeight - (row.lineValue / maxLine) * innerHeight,
+    row,
+  }));
+  const linePath = linePoints.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+  const yLabel = (value) => formatCurrency(Math.round(value)).replace(",00", "");
+  return `
+    <svg viewBox="0 0 ${width} ${height}" aria-label="Revenue bar and order line chart">
+      <defs>
+        <linearGradient id="graphic-bar-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f2a049"/>
+          <stop offset="100%" stop-color="#d4440e"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="${width}" height="${height}" rx="6" fill="#202020"></rect>
+      ${[0, 0.25, 0.5, 0.75, 1]
+        .map((tick) => {
+          const y = padding.top + innerHeight - innerHeight * tick;
+          return `
+            <line x1="${padding.left}" y1="${y}" x2="${padding.left + innerWidth}" y2="${y}" stroke="rgba(255,255,255,0.08)"></line>
+            <text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" fill="#8e949f" font-size="11">${yLabel(maxRevenue * tick)}</text>
+          `;
+        })
+        .join("")}
+      ${rows
+        .map((row, index) => {
+          const x = padding.left + slot * index + (slot - barWidth) / 2;
+          const barHeight = (row.revenue / maxRevenue) * innerHeight;
+          const y = padding.top + innerHeight - barHeight;
+          const showLabel = rows.length <= 16 || index % Math.ceil(rows.length / 12) === 0;
+          return `
+            <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="3" fill="url(#graphic-bar-fill)"></rect>
+            ${showLabel ? `<text x="${x + barWidth / 2}" y="${height - 16}" text-anchor="middle" fill="#8e949f" font-size="10">${row.label}</text>` : ""}
+          `;
+        })
+        .join("")}
+      <path d="${linePath}" fill="none" stroke="#e0493f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+      ${linePoints
+        .map((point) => `<circle cx="${point.x}" cy="${point.y}" r="3.5" fill="#e0493f" stroke="#202020" stroke-width="2"></circle>`)
+        .join("")}
+      <g transform="translate(${padding.left}, ${padding.top - 12})">
+        <rect width="10" height="10" rx="2" fill="#d4440e"></rect>
+        <text x="16" y="9" fill="#c8cede" font-size="12">Revenue</text>
+        <line x1="92" y1="5" x2="112" y2="5" stroke="#e0493f" stroke-width="3"></line>
+        <text x="120" y="9" fill="#c8cede" font-size="12">Orders</text>
+      </g>
+    </svg>
+  `;
+}
+
+function buildGraphicKpiPanel(summary, compareSummary) {
+  return `
+    <div class="graphic-breakdown">
+      <div class="graphic-breakdown-item"><span>Revenue</span><strong>${formatDisplayRevenue(summary)}</strong><em>${deltaDisplay(displayRevenueValue(summary), displayRevenueValue(compareSummary))}</em></div>
+      <div class="graphic-breakdown-item"><span>Orders</span><strong>${numberFormatter.format(summary.orderCount)}</strong><em>${deltaDisplay(summary.orderCount, compareSummary.orderCount)}</em></div>
+      <div class="graphic-breakdown-item"><span>Guests</span><strong>${numberFormatter.format(summary.guests)}</strong><em>${deltaDisplay(summary.guests, compareSummary.guests)}</em></div>
+      <div class="graphic-breakdown-item"><span>Average Order Value</span><strong>${formatCurrency(summary.averageOrderValueCents)}</strong><em>${deltaDisplay(summary.averageOrderValueCents, compareSummary.averageOrderValueCents)}</em></div>
+      <div class="graphic-breakdown-item"><span>Margin</span><strong>${formatCurrency(summary.marginCents)}</strong><em>${deltaDisplay(summary.marginCents, compareSummary.marginCents)}</em></div>
+    </div>
+  `;
+}
+
 function buildMatrixChart(matrix) {
   if (!matrix.rows.length) {
     return "<div class=\"note-card\">No product rows available for the selected filters.</div>";
@@ -1571,6 +1819,188 @@ function buildConsumptionTable(context) {
   `;
 }
 
+function buildMonthlyPnlTable() {
+  const model = localModel.monthlyPnl || {};
+  const cellValue = (rowId, monthKey) => Number(model[rowId]?.[monthKey] || 0);
+  const rowTotal = (rowId) => PNL_MONTHS.reduce((total, [monthKey]) => total + cellValue(rowId, monthKey), 0);
+  const colTotal = (monthKey, type) =>
+    PNL_ROWS.filter((row) => row.type === type).reduce((total, row) => total + cellValue(row.id, monthKey), 0);
+  const resultTotal = (monthKey) => colTotal(monthKey, "income") - colTotal(monthKey, "expense");
+  const grandByType = (type) => PNL_MONTHS.reduce((total, [monthKey]) => total + colTotal(monthKey, type), 0);
+  return `
+    <table class="pnl-table">
+      <thead>
+        <tr>
+          <th class="pnl-sticky-col">Line Item</th>
+          ${PNL_MONTHS.map(([, label]) => `<th>${label}</th>`).join("")}
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${PNL_ROWS.map(
+          (row) => `
+            <tr class="pnl-row-${row.type}">
+              <td class="pnl-sticky-col"><strong>${row.label}</strong><span>${row.type === "income" ? "Income" : "Expense"}</span></td>
+              ${PNL_MONTHS.map(
+                ([monthKey]) => `
+                  <td>
+                    <input
+                      class="pnl-input"
+                      type="number"
+                      step="0.01"
+                      data-pnl-row="${row.id}"
+                      data-pnl-month="${monthKey}"
+                      value="${(cellValue(row.id, monthKey) / 100).toFixed(2)}"
+                    />
+                  </td>
+                `,
+              ).join("")}
+              <td class="pnl-total" data-pnl-row-total="${row.id}">${formatCurrency(rowTotal(row.id))}</td>
+            </tr>
+          `,
+        ).join("")}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th class="pnl-sticky-col">Total Income</th>
+          ${PNL_MONTHS.map(([monthKey]) => `<th data-pnl-col-total="income:${monthKey}">${formatCurrency(colTotal(monthKey, "income"))}</th>`).join("")}
+          <th data-pnl-grand-total="income">${formatCurrency(grandByType("income"))}</th>
+        </tr>
+        <tr>
+          <th class="pnl-sticky-col">Total Expenses</th>
+          ${PNL_MONTHS.map(([monthKey]) => `<th data-pnl-col-total="expense:${monthKey}">${formatCurrency(colTotal(monthKey, "expense"))}</th>`).join("")}
+          <th data-pnl-grand-total="expense">${formatCurrency(grandByType("expense"))}</th>
+        </tr>
+        <tr class="pnl-result-row">
+          <th class="pnl-sticky-col">Operating Result</th>
+          ${PNL_MONTHS.map(([monthKey]) => `<th data-pnl-result-total="${monthKey}">${formatCurrency(resultTotal(monthKey))}</th>`).join("")}
+          <th data-pnl-grand-total="result">${formatCurrency(grandByType("income") - grandByType("expense"))}</th>
+        </tr>
+      </tfoot>
+    </table>
+  `;
+}
+
+function updateMonthlyPnlTotals() {
+  if (!localModel.monthlyPnl) return;
+  const model = localModel.monthlyPnl;
+  const cellValue = (rowId, monthKey) => Number(model[rowId]?.[monthKey] || 0);
+  const rowTotal = (rowId) => PNL_MONTHS.reduce((total, [monthKey]) => total + cellValue(rowId, monthKey), 0);
+  const colTotal = (monthKey, type) =>
+    PNL_ROWS.filter((row) => row.type === type).reduce((total, row) => total + cellValue(row.id, monthKey), 0);
+  PNL_ROWS.forEach((row) => {
+    const el = document.querySelector(`[data-pnl-row-total="${row.id}"]`);
+    if (el) el.textContent = formatCurrency(rowTotal(row.id));
+  });
+  ["income", "expense"].forEach((type) => {
+    let grand = 0;
+    PNL_MONTHS.forEach(([monthKey]) => {
+      const value = colTotal(monthKey, type);
+      grand += value;
+      const el = document.querySelector(`[data-pnl-col-total="${type}:${monthKey}"]`);
+      if (el) el.textContent = formatCurrency(value);
+    });
+    const grandEl = document.querySelector(`[data-pnl-grand-total="${type}"]`);
+    if (grandEl) grandEl.textContent = formatCurrency(grand);
+  });
+  let resultGrand = 0;
+  PNL_MONTHS.forEach(([monthKey]) => {
+    const value = colTotal(monthKey, "income") - colTotal(monthKey, "expense");
+    resultGrand += value;
+    const el = document.querySelector(`[data-pnl-result-total="${monthKey}"]`);
+    if (el) el.textContent = formatCurrency(value);
+  });
+  const resultEl = document.querySelector('[data-pnl-grand-total="result"]');
+  if (resultEl) resultEl.textContent = formatCurrency(resultGrand);
+}
+
+function handleMonthlyPnlInput(event) {
+  const input = event.target.closest("[data-pnl-row][data-pnl-month]");
+  if (!input) {
+    return;
+  }
+  ensureMonthlyPnlModel(state.renderContext);
+  const rowId = input.dataset.pnlRow;
+  const monthKey = input.dataset.pnlMonth;
+  if (!localModel.monthlyPnl[rowId]) {
+    localModel.monthlyPnl[rowId] = {};
+  }
+  localModel.monthlyPnl[rowId][monthKey] = Math.round(Number(input.value || 0) * 100);
+  updateMonthlyPnlTotals();
+  persistLocalModel();
+}
+
+function ensureMonthlyPnlModel(context) {
+  if (!localModel.monthlyPnl) {
+    localModel.monthlyPnl = seedMonthlyPnl(context?.processed || currentProcessed());
+    persistLocalModel();
+    return;
+  }
+  let changed = false;
+  PNL_ROWS.forEach((row) => {
+    if (!localModel.monthlyPnl[row.id]) {
+      localModel.monthlyPnl[row.id] = {};
+      changed = true;
+    }
+    PNL_MONTHS.forEach(([monthKey]) => {
+      if (localModel.monthlyPnl[row.id][monthKey] == null) {
+        localModel.monthlyPnl[row.id][monthKey] = 0;
+        changed = true;
+      }
+    });
+  });
+  if (changed) persistLocalModel();
+}
+
+function seedMonthlyPnl(processed) {
+  const monthlyRevenue = Object.fromEntries(PNL_MONTHS.map(([monthKey]) => [monthKey, 0]));
+  processed.raw.daily.forEach((day) => {
+    const monthIndex = fromIso(day.date).getMonth();
+    const monthKey = PNL_MONTHS[monthIndex]?.[0];
+    if (monthKey) {
+      monthlyRevenue[monthKey] += Math.max((day.receiptRevenueCents || 0) - (day.receiptRefundsCents || 0), 0);
+    }
+  });
+  const fallback = Math.max(...Object.values(monthlyRevenue), 8500000);
+  const multipliers = [0.82, 0.88, 0.94, 1, 1.04, 1.08, 1.12, 1.1, 1.03, 0.98, 0.94, 1.06];
+  PNL_MONTHS.forEach(([monthKey], index) => {
+    if (!monthlyRevenue[monthKey]) {
+      monthlyRevenue[monthKey] = Math.round(fallback * multipliers[index]);
+    }
+  });
+  const model = {};
+  PNL_ROWS.forEach((row) => {
+    model[row.id] = {};
+    PNL_MONTHS.forEach(([monthKey]) => {
+      const revenue = monthlyRevenue[monthKey];
+      const rates = {
+        personnel: 0.28,
+        revenue: 1,
+        "beverage-revenue": 0.22,
+        fleet: 0.012,
+        advertising: 0.018,
+        taxes: 0.045,
+        insurance: 0.01,
+        energy: 0.035,
+        leasing: 0.014,
+        maintenance: 0.012,
+        it: 0.009,
+        "online-marketing": 0.011,
+        gallery: 0.006,
+        "profit-sharing": 0.018,
+        "payroll-gz": 0.016,
+        subcontractors: 0.02,
+        "furniture-gz": 0.013,
+        subscriptions: 0.007,
+        dividend: 0.01,
+        other: 0.012,
+      };
+      model[row.id][monthKey] = Math.round(revenue * (rates[row.id] || 0));
+    });
+  });
+  return model;
+}
+
 function buildExpensesTable(rangeDays) {
   return `
     <table>
@@ -1666,9 +2096,25 @@ function wireDetailEvents() {
     }
   });
 
-  document.getElementById("heatmap-current-table").addEventListener("click", handleHeatmapClick);
-  document.getElementById("heatmap-compare-table").addEventListener("click", handleHeatmapClick);
-  document.getElementById("heatmap-grid").addEventListener("click", handleHeatmapClick);
+  ["heatmap-current-table", "heatmap-compare-table", "heatmap-grid"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("click", handleHeatmapClick);
+  });
+
+  const applyGraphicRange = document.getElementById("apply-graphic-range");
+  if (applyGraphicRange) {
+    applyGraphicRange.addEventListener("click", () => {
+      const start = document.getElementById("graphic-start-date")?.value;
+      const end = document.getElementById("graphic-end-date")?.value;
+      if (!start || !end || start > end) {
+        return;
+      }
+      state.rangePreset = "custom";
+      state.startDate = start;
+      state.endDate = end;
+      renderAll();
+    });
+  }
 
   document.getElementById("save-dashboard-note").addEventListener("click", () => {
     const note = document.getElementById("dashboard-note-input").value.trim();
@@ -1682,7 +2128,8 @@ function wireDetailEvents() {
     renderDashboardNote();
   });
 
-  document.getElementById("save-day-note").addEventListener("click", () => {
+  const saveDayNote = document.getElementById("save-day-note");
+  if (saveDayNote) saveDayNote.addEventListener("click", () => {
     if (!state.selectedHeatmapDate) {
       return;
     }
@@ -1743,7 +2190,9 @@ function wireDetailEvents() {
     renderRecipes(state.renderContext);
   });
   document.getElementById("open-recipe-cost").addEventListener("click", () => openRecipeCostModal(document.getElementById("recipe-product-select").value));
-  document.getElementById("save-expense").addEventListener("click", saveExpense);
+  const saveExpenseButton = document.getElementById("save-expense");
+  if (saveExpenseButton) saveExpenseButton.addEventListener("click", saveExpense);
+  document.getElementById("expenses-table").addEventListener("input", handleMonthlyPnlInput);
 
   document.getElementById("permissions-table").addEventListener("change", (event) => {
     const input = event.target.closest("[data-role-key][data-page-key]");
@@ -1942,25 +2391,25 @@ function closeModal() {
 function keyKpiItems(summary, compareSummary, detailed = false) {
   const rows = [
     kpiRow("Revenue (Gross / Net)", formatDisplayRevenue(summary), formatDisplayRevenue(compareSummary), deltaDisplay(displayRevenueValue(summary), displayRevenueValue(compareSummary)), "Switch gross or net in the top control bar."),
-    kpiRow("Items Sold", numberFormatter.format(Math.round(summary.itemsSold)), compareValue(compareSummary, "itemsSold"), deltaDisplay(summary.itemsSold, compareSummary.itemsSold), "Verkaufte Artikel"),
-    kpiRow("Cancelled Items", numberFormatter.format(Math.round(summary.canceledItems)), compareValue(compareSummary, "canceledItems"), deltaDisplay(summary.canceledItems, compareSummary.canceledItems), "Stornierte Artikel"),
-    kpiRow("Number of Guests", numberFormatter.format(summary.guests), compareValue(compareSummary, "guests"), deltaDisplay(summary.guests, compareSummary.guests), "Gasteanzahl"),
-    kpiRow("Number of Tables", numberFormatter.format(summary.tables), compareValue(compareSummary, "tables"), deltaDisplay(summary.tables, compareSummary.tables), "Tischanzahl"),
+    kpiRow("Items Sold", numberFormatter.format(Math.round(summary.itemsSold)), compareValue(compareSummary, "itemsSold"), deltaDisplay(summary.itemsSold, compareSummary.itemsSold), "Total articles sold in the period."),
+    kpiRow("Cancelled Items", numberFormatter.format(Math.round(summary.canceledItems)), compareValue(compareSummary, "canceledItems"), deltaDisplay(summary.canceledItems, compareSummary.canceledItems), "Cancelled or voided items."),
+    kpiRow("Number of Guests", numberFormatter.format(summary.guests), compareValue(compareSummary, "guests"), deltaDisplay(summary.guests, compareSummary.guests), "Total guest count."),
+    kpiRow("Number of Tables", numberFormatter.format(summary.tables), compareValue(compareSummary, "tables"), deltaDisplay(summary.tables, compareSummary.tables), "Total tables served."),
     kpiRow("Average Order Value", formatCurrency(summary.averageOrderValueCents), compareValue(compareSummary, "averageOrderValueCents"), deltaDisplay(summary.averageOrderValueCents, compareSummary.averageOrderValueCents), "Average revenue per order or table."),
-    kpiRow("Food Cost (Total & %)", `${formatCurrency(summary.foodCostCents)} | ${formatPercent(summary.foodCostPercent)}`, `${formatCurrency(compareSummary.foodCostCents || 0)} | ${formatPercent(compareSummary.foodCostPercent || 0)}`, deltaDisplay(summary.foodCostCents, compareSummary.foodCostCents), "Wareneinsatz total & %."),
+    kpiRow("Food Cost (Total & %)", `${formatCurrency(summary.foodCostCents)} | ${formatPercent(summary.foodCostPercent)}`, `${formatCurrency(compareSummary.foodCostCents || 0)} | ${formatPercent(compareSummary.foodCostPercent || 0)}`, deltaDisplay(summary.foodCostCents, compareSummary.foodCostCents), "Cost of goods sold — total and as % of net revenue."),
     kpiRow("Staff Cost (Total & %)", `${formatCurrency(summary.staffCostCents)} | ${formatPercent(summary.staffCostPercent)}`, `${formatCurrency(compareSummary.staffCostCents || 0)} | ${formatPercent(compareSummary.staffCostPercent || 0)}`, deltaDisplay(summary.staffCostCents, compareSummary.staffCostCents), "Based on total net revenue and current wage history."),
     kpiRow("Custom / Indirect Cost %", formatPercent(summary.customCostPercent), compareValue(compareSummary, "customCostPercent"), deltaDisplay(summary.customCostPercent, compareSummary.customCostPercent), "Rent, maintenance, software, and similar costs."),
     kpiRow("Contribution Margin 1", formatCurrency(summary.contributionMarginCents), compareValue(compareSummary, "contributionMarginCents"), deltaDisplay(summary.contributionMarginCents, compareSummary.contributionMarginCents), "Net revenue minus food cost."),
-    kpiRow("Margin % | Total Margin", `${formatPercent(summary.marginPercent)} | ${formatCurrency(summary.marginCents)}`, `${formatPercent(compareSummary.marginPercent || 0)} | ${formatCurrency(compareSummary.marginCents || 0)}`, deltaDisplay(summary.marginCents, compareSummary.marginCents), "Marge in % | Marge EUR"),
+    kpiRow("Margin % | Total Margin", `${formatPercent(summary.marginPercent)} | ${formatCurrency(summary.marginCents)}`, `${formatPercent(compareSummary.marginPercent || 0)} | ${formatCurrency(compareSummary.marginCents || 0)}`, deltaDisplay(summary.marginCents, compareSummary.marginCents), "Margin % and total margin in EUR."),
     kpiRow("Employees Present", numberFormatter.format(summary.employeeCount), compareValue(compareSummary, "employeeCount"), deltaDisplay(summary.employeeCount, compareSummary.employeeCount), "Distinct employees present in the selected range."),
     kpiRow("Total Staff Hours", `${decimalFormatter.format(summary.totalStaffHours)} h`, compareValue(compareSummary, "totalStaffHours"), deltaDisplay(summary.totalStaffHours, compareSummary.totalStaffHours), "Clocked-in working time used for wage-based calculations."),
-    kpiRow("Average Guests per Table", decimalFormatter.format(summary.averageGuestsPerTable), compareValue(compareSummary, "averageGuestsPerTable"), deltaDisplay(summary.averageGuestsPerTable, compareSummary.averageGuestsPerTable), "Durchschnittliche Gastezahl pro Tisch."),
+    kpiRow("Average Guests per Table", decimalFormatter.format(summary.averageGuestsPerTable), compareValue(compareSummary, "averageGuestsPerTable"), deltaDisplay(summary.averageGuestsPerTable, compareSummary.averageGuestsPerTable), "Average number of guests per table."),
     kpiRow("Revenue per Guest", formatCurrency(summary.revenuePerGuestCents), compareValue(compareSummary, "revenuePerGuestCents"), deltaDisplay(summary.revenuePerGuestCents, compareSummary.revenuePerGuestCents), "Useful for spend-per-guest analysis."),
-    kpiRow("Revenue per Employee (Total)", formatCurrency(summary.revenuePerEmployeeCents), compareValue(compareSummary, "revenuePerEmployeeCents"), deltaDisplay(summary.revenuePerEmployeeCents, compareSummary.revenuePerEmployeeCents), "Umsatz pro Mitarbeiter (gesamt)."),
+    kpiRow("Revenue per Employee (Total)", formatCurrency(summary.revenuePerEmployeeCents), compareValue(compareSummary, "revenuePerEmployeeCents"), deltaDisplay(summary.revenuePerEmployeeCents, compareSummary.revenuePerEmployeeCents), "Revenue per employee (all staff combined)."),
     kpiRow("Productivity per Labour Hour", formatCurrency(summary.revenuePerLaborHourCents), compareValue(compareSummary, "revenuePerLaborHourCents"), deltaDisplay(summary.revenuePerLaborHourCents, compareSummary.revenuePerLaborHourCents), "Revenue generated per scheduled labour hour."),
     kpiRow("Time from Order to Serving", formatDurationMinutes(summary.averageServiceMinutes), compareValue(compareSummary, "averageServiceMinutes"), deltaDisplay(summary.averageServiceMinutes, compareSummary.averageServiceMinutes), "Estimated until order/serve timestamps are connected."),
     kpiRow("Average Discounts per Day", formatCurrency(summary.averageDiscountsPerDayCents), compareValue(compareSummary, "averageDiscountsPerDayCents"), deltaDisplay(summary.averageDiscountsPerDayCents, compareSummary.averageDiscountsPerDayCents), "Derived from POS refunds / discount rows."),
-    kpiRow("Average Cancellations per Day", decimalFormatter.format(summary.averageCancellationsPerDay), compareValue(compareSummary, "averageCancellationsPerDay"), deltaDisplay(summary.averageCancellationsPerDay, compareSummary.averageCancellationsPerDay), "Durchschnittliche Anzahl an Stornos pro Tag."),
+    kpiRow("Average Cancellations per Day", decimalFormatter.format(summary.averageCancellationsPerDay), compareValue(compareSummary, "averageCancellationsPerDay"), deltaDisplay(summary.averageCancellationsPerDay, compareSummary.averageCancellationsPerDay), "Average number of cancellations per day."),
     kpiRow("Average Staff per Day in the Kitchen", decimalFormatter.format(summary.averageStaffPerDayKitchen), compareValue(compareSummary, "averageStaffPerDayKitchen"), deltaDisplay(summary.averageStaffPerDayKitchen, compareSummary.averageStaffPerDayKitchen), "Kitchen staffing"),
     kpiRow("Average Staff per Day at the Bar", decimalFormatter.format(summary.averageStaffPerDayBar), compareValue(compareSummary, "averageStaffPerDayBar"), deltaDisplay(summary.averageStaffPerDayBar, compareSummary.averageStaffPerDayBar), "Bar staffing"),
     kpiRow("Average Staff per Day in Service", decimalFormatter.format(summary.averageStaffPerDayService), compareValue(compareSummary, "averageStaffPerDayService"), deltaDisplay(summary.averageStaffPerDayService, compareSummary.averageStaffPerDayService), "Service staffing"),
@@ -2003,6 +2452,7 @@ function emptyComparisonSummary() {
     canceledItems: 0,
     guests: 0,
     tables: 0,
+    orderCount: 0,
     refundAmountCents: 0,
     refundCount: 0,
     averageOrderValueCents: 0,
@@ -2183,11 +2633,11 @@ function buildComparisonModel(processed, filters, summary, start, end) {
     compareEnd = toIso(addDays(fromIso(start), -1));
     compareStart = toIso(addDays(fromIso(compareEnd), -(span - 1)));
   } else {
-    compareStart = toIso(addDays(fromIso(start), -364));
-    compareEnd = toIso(addDays(fromIso(end), -364));
+    compareStart = toIso(addMonths(fromIso(start), -12));
+    compareEnd = toIso(addMonths(fromIso(end), -12));
   }
   const compareSummary =
-    compareEnd < processed.raw.meta.dataMinDate || state.compareMode === "lastYear"
+    compareEnd < processed.raw.meta.dataMinDate || compareStart > processed.raw.meta.dataMaxDate
       ? simulateHistoricalSummary(summary, state.compareMode)
       : buildSummaryFromRange(processed, filters, compareStart, compareEnd);
   const base = compareSummary.grossRevenueCents;
@@ -2550,6 +3000,7 @@ function loadLocalModel() {
         ingredients: mergeIngredients(seed.ingredients, parsed.ingredients || []),
         recipes: { ...seed.recipes, ...(parsed.recipes || {}) },
         expenses: parsed.expenses?.length ? parsed.expenses : seed.expenses,
+        monthlyPnl: parsed.monthlyPnl || seed.monthlyPnl,
       hiddenProducts: parsed.hiddenProducts || [],
       permissions: { ...seed.permissions, ...(parsed.permissions || {}) },
     };
@@ -2559,6 +3010,15 @@ function loadLocalModel() {
     window.localStorage.setItem(LOCAL_KEY, JSON.stringify(seed));
     return seed;
   }
+}
+
+function migratePermissions() {
+  const newPages = ["auslastung"];
+  ["owner", "manager"].forEach((role) => {
+    const current = new Set(localModel.permissions[role] || []);
+    newPages.forEach((page) => current.add(page));
+    localModel.permissions[role] = [...current];
+  });
 }
 
 function persistLocalModel() {
@@ -2587,6 +3047,7 @@ function buildSeedLocalModel() {
     ingredients,
     recipes: seedRecipes(processed, ingredients),
     expenses: seedExpenses(),
+    monthlyPnl: seedMonthlyPnl(processed),
     hiddenProducts: [],
     permissions: {
       owner: PAGE_ORDER.slice(),

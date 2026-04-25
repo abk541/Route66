@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurant Performance Studio</title>
+    <title>gastroboard</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -12,30 +12,90 @@
 
       <aside class="sidebar" id="app-sidebar">
         <div class="sidebar-top">
-          <button class="sidebar-toggle-button" id="sidebar-toggle-button" type="button" aria-label="Toggle menu">=</button>
+          <button class="sidebar-toggle-button" id="sidebar-toggle-button" type="button" aria-label="Toggle sidebar">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="1" y="3" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <rect x="1" y="7.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <rect x="1" y="11.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+            </svg>
+          </button>
           <div class="sidebar-brand">
-            <div class="brand-mark">sellerboard</div>
+            <div class="sidebar-logo-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <rect width="32" height="32" rx="8" fill="#2e2f33"/>
+                <circle cx="16" cy="9.5" r="3.9" fill="#ffffff"/>
+                <path d="M9.4 27.2C9.7 19.9 12.5 16.2 16 16.2C19.5 16.2 22.3 19.9 22.6 27.2H9.4Z" fill="#d4440e"/>
+                <path d="M10.7 18.2C12.3 16.7 19.7 16.7 21.3 18.2L16 22.1L10.7 18.2Z" fill="#ffffff"/>
+                <path d="M13.2 16.8L16 20.3L18.8 16.8C17 16.2 15 16.2 13.2 16.8Z" fill="#2e2f33"/>
+                <path d="M14 17.1L16 20.4V17.1H14Z" fill="#ffffff"/>
+                <path d="M18 17.1L16 20.4V17.1H18Z" fill="#ffffff"/>
+                <circle cx="16" cy="19.4" r="0.65" fill="#ffffff"/>
+                <circle cx="16" cy="22.1" r="0.65" fill="#ffffff"/>
+              </svg>
+            </div>
+            <div class="sidebar-brand-text">
+              <span class="sidebar-brand-name">
+                <span class="brand-gastro">gastro</span><span class="brand-board">board</span>
+              </span>
+            </div>
           </div>
         </div>
 
         <div class="sidebar-group">
           <button class="sidebar-section-toggle" type="button">
             <span class="sidebar-section-icon">▣</span>
-            <span>Restaurant</span>
+            <span class="sidebar-section-text">Restaurant</span>
             <span class="sidebar-section-caret">⌄</span>
           </button>
           <nav class="sidebar-nav" aria-label="Primary">
-            <button class="sidebar-link active" data-page="dashboard">
+
+            <button class="sidebar-link sidebar-link--has-sub" data-page="dashboard" id="sidebar-dashboard-toggle">
               <span class="sidebar-link-icon">□</span>
               <span>Dashboard</span>
+              <span class="sidebar-link-caret">›</span>
             </button>
-            <button class="sidebar-link" data-page="explorer" data-mode="products">
+            <div class="sidebar-sub-nav sidebar-sub-open" id="sidebar-dashboard-sub">
+              <button class="sidebar-sub-link" data-page="dashboard">
+                <span class="sidebar-link-icon">▦</span>
+                <span>Tiles</span>
+              </button>
+              <button class="sidebar-sub-link" data-page="heatmap">
+                <span class="sidebar-link-icon">⌖</span>
+                <span>Charts</span>
+              </button>
+              <button class="sidebar-sub-link" data-page="costs">
+                <span class="sidebar-link-icon">≡</span>
+                <span>P&amp;L</span>
+              </button>
+              <button class="sidebar-sub-link" data-page="trends">
+                <span class="sidebar-link-icon">⤴</span>
+                <span>Trends</span>
+              </button>
+            </div>
+
+            <button class="sidebar-link sidebar-link--has-sub" id="sidebar-food-toggle">
               <span class="sidebar-link-icon">◫</span>
-              <span>Products</span>
+              <span>Food</span>
+              <span class="sidebar-link-caret">›</span>
             </button>
+            <div class="sidebar-sub-nav sidebar-sub-open" id="sidebar-food-sub">
+              <button class="sidebar-sub-link" data-page="explorer" data-mode="products">
+                <span class="sidebar-link-icon">◫</span>
+                <span>Products</span>
+              </button>
+              <button class="sidebar-sub-link" data-page="recipes">
+                <span class="sidebar-link-icon">≣</span>
+                <span>Recipes</span>
+              </button>
+              <button class="sidebar-sub-link" data-page="purchasing">
+                <span class="sidebar-link-icon">◩</span>
+                <span>Purchasing</span>
+              </button>
+            </div>
+
             <button class="sidebar-link" data-page="matrix">
               <span class="sidebar-link-icon">◎</span>
-              <span>Magic Menu Quadrant</span>
+              <span>Product Matrix</span>
             </button>
             <button class="sidebar-link" data-page="transactions">
               <span class="sidebar-link-icon">↺</span>
@@ -45,33 +105,20 @@
               <span class="sidebar-link-icon">◧</span>
               <span>Employees</span>
             </button>
-            <button class="sidebar-link" data-page="purchasing">
-              <span class="sidebar-link-icon">◩</span>
-              <span>Purchasing</span>
-            </button>
-            <button class="sidebar-link" data-page="recipes">
-              <span class="sidebar-link-icon">≣</span>
-              <span>Recipes</span>
-            </button>
-            <button class="sidebar-link" data-page="costs">
+            <button class="sidebar-link" data-page="auslastung">
               <span class="sidebar-link-icon">◌</span>
-              <span>Indirect Expenses</span>
+              <span>Utilization</span>
             </button>
           </nav>
         </div>
 
         <div class="sidebar-group sidebar-utilities">
-          <label class="top-select sidebar-select">
-            <span>Role</span>
-            <select id="role-select"></select>
-          </label>
-
           <div class="dataset-switcher sidebar-dataset-switcher">
             <button class="dataset-button active" data-dataset="live">CSV Data</button>
             <button class="dataset-button" data-dataset="scenario">Mock Demo</button>
           </div>
 
-          <div class="user-pill">demo@route66</div>
+          <div class="user-pill">demo@gastroboard</div>
         </div>
 
         <div class="sidebar-footer-nav">
@@ -96,21 +143,17 @@
               <div class="dashboard-cluster-nav" id="dashboard-cluster-nav">
                 <button class="dashboard-tab active" data-dashboard-page="dashboard">
                   <span class="dashboard-tab-icon">▦</span>
-                  <span>Tiles</span>
+                  <span>Dashboard</span>
                 </button>
-                <button class="dashboard-tab" data-dashboard-page="matrix">
-                  <span class="dashboard-tab-icon">↗</span>
-                  <span>Graphic</span>
-                </button>
-                <button class="dashboard-tab" data-dashboard-page="costs">
+<button class="dashboard-tab" data-dashboard-page="costs" hidden>
                   <span class="dashboard-tab-icon">≡</span>
                   <span>P&amp;L</span>
                 </button>
                 <button class="dashboard-tab" data-dashboard-page="heatmap">
                   <span class="dashboard-tab-icon">⌖</span>
-                  <span>Map</span>
+                  <span>Grafik</span>
                 </button>
-                <button class="dashboard-tab" data-dashboard-page="trends">
+                <button class="dashboard-tab" data-dashboard-page="trends" hidden>
                   <span class="dashboard-tab-icon">⤴</span>
                   <span>Trends</span>
                 </button>
@@ -162,11 +205,11 @@
             </label>
 
             <label class="control-select utility-select utility-select-compare">
-              <span class="visually-hidden">Time Range</span>
+              <span class="visually-hidden">Compare period</span>
               <select id="compare-mode">
-                <option value="none">Time Range</option>
-                <option value="previous">Compare with Previous Period</option>
-                <option value="lastYear">Compare with Same Period Last Year</option>
+                <option value="none">No comparison</option>
+                <option value="previous">vs. Previous Period</option>
+                <option value="lastYear">vs. Same Period Last Year</option>
               </select>
             </label>
 
@@ -233,17 +276,15 @@
               </div>
             </div>
 
-            <div class="panel-grid dashboard-grid">
-              <article class="panel wide-panel dashboard-kpi-panel">
-                <div class="panel-header">
-                  <div>
-                    <p class="section-caption">KPI summary</p>
-                    <h3>Performance snapshot</h3>
-                  </div>
-                </div>
-                <div id="dashboard-kpi-list" class="kpi-list"></div>
-              </article>
+            <div class="dashboard-drilldown-bar">
+              <button class="drilldown-tab active" data-drilldown="today">Today</button>
+              <button class="drilldown-tab" data-drilldown="products">Products</button>
+              <button class="drilldown-tab" data-drilldown="groups">Product Groups</button>
+              <button class="drilldown-tab" data-drilldown="employees">Employees</button>
+            </div>
+            <div id="dashboard-drilldown-content" class="table-shell"></div>
 
+            <div class="panel-grid dashboard-grid">
               <article class="panel wide-panel dashboard-note-panel">
                 <div class="panel-header">
                   <div>
@@ -310,73 +351,44 @@
           <section class="workspace-view" data-view="heatmap">
             <div class="section-toolbar">
               <div class="section-title-group">
-                <p class="section-caption">Staff utilization</p>
-                <h2 id="heatmap-range-title">Upcoming week vs same week last year</h2>
+                <p class="section-caption">Grafik</p>
+                <h2 id="heatmap-range-title">Revenue and KPI development</h2>
               </div>
 
-              <div class="segmented-control" id="heatmap-metric-switch">
-                <button class="heat-switch active" data-metric="staffCostPercent">Staff Cost %</button>
-                <button class="heat-switch" data-metric="guests">Guests</button>
-                <button class="heat-switch" data-metric="tables">Tables</button>
+              <div class="toolbar-group graphic-date-range">
+                <label class="control-select">
+                  <span>From</span>
+                  <input id="graphic-start-date" type="date" />
+                </label>
+                <label class="control-select">
+                  <span>To</span>
+                  <input id="graphic-end-date" type="date" />
+                </label>
+                <button id="apply-graphic-range" class="control-button">Apply</button>
               </div>
             </div>
 
-            <div class="panel-grid heatmap-layout">
-              <article class="panel">
+            <div class="panel-grid graphic-layout">
+              <article class="panel graphic-chart-panel">
                 <div class="panel-header compact">
                   <div>
-                    <p class="section-caption" id="heatmap-current-caption">Current planning week</p>
-                    <h3 id="heatmap-current-title">This period</h3>
+                    <p class="section-caption">Bar and line chart</p>
+                    <h3 id="graphic-chart-title">Revenue by period</h3>
                   </div>
                 </div>
-                <div id="heatmap-current-table" class="table-shell"></div>
+                <div id="graphic-combo-chart" class="chart-shell combo-chart-shell"></div>
               </article>
 
-              <article class="panel">
+              <aside class="panel graphic-kpi-panel">
                 <div class="panel-header compact">
                   <div>
-                    <p class="section-caption" id="heatmap-compare-caption">Reference week</p>
-                    <h3 id="heatmap-compare-title">Same week last year</h3>
+                    <p class="section-caption">KPI breakdown</p>
+                    <h3 id="graphic-side-title">Selected range</h3>
                   </div>
                 </div>
-                <div id="heatmap-compare-table" class="table-shell"></div>
-              </article>
+                <div id="graphic-kpi-list" class="kpi-list"></div>
+              </aside>
             </div>
-
-            <article class="panel detail-panel">
-              <div class="panel-header">
-                <div>
-                  <p class="section-caption">Day detail</p>
-                  <h3 id="heatmap-detail-title">Select a day</h3>
-                </div>
-                <div class="status-badge" id="note-status">No note</div>
-              </div>
-
-              <div class="panel-grid detail-grid">
-                <div id="day-detail-kpis" class="kpi-list"></div>
-
-                <div class="note-editor">
-                  <label class="control-select fill-width">
-                    <span>Saved comment</span>
-                    <textarea id="day-note-input" rows="6" placeholder="Start of vacation, public holiday, bridge day..."></textarea>
-                  </label>
-                  <button id="save-day-note" class="control-button primary">Save comment</button>
-                </div>
-              </div>
-
-              <div id="day-staff-lists" class="note-stack"></div>
-            </article>
-
-            <article class="panel">
-              <div class="panel-header">
-                <div>
-                  <p class="section-caption">Rule-based heat map</p>
-                  <h3>Target range: 19-21%</h3>
-                </div>
-              </div>
-              <div class="heatmap-legend" id="heatmap-legend"></div>
-              <div class="heatmap-grid" id="heatmap-grid"></div>
-            </article>
           </section>
 
           <section class="workspace-view" data-view="trends">
@@ -532,7 +544,7 @@
                 <div class="panel-header">
                   <div>
                     <p class="section-caption">Ingredients</p>
-                    <h3>Ingredient Group (Warengruppe)</h3>
+                    <h3>Ingredient Group</h3>
                   </div>
                 </div>
                 <div id="purchasing-table" class="table-shell"></div>
@@ -630,59 +642,40 @@
           <section class="workspace-view" data-view="costs">
             <div class="section-toolbar">
               <div class="section-title-group">
-                <p class="section-caption">Indirect expenses</p>
-                <h2>Dailyized operating costs</h2>
+                <p class="section-caption">P&amp;L</p>
+                <h2>Monthly income statement</h2>
               </div>
             </div>
 
-            <div class="panel-grid">
-              <article class="panel">
-                <div class="panel-header">
-                  <div>
-                    <p class="section-caption">Expense table</p>
-                    <h3>Recurring and one-time expenses</h3>
-                  </div>
+            <article class="panel pnl-panel">
+              <div class="panel-header compact">
+                <div>
+                  <p class="section-caption">Editable monthly table</p>
+                  <h3>January through December plus total</h3>
                 </div>
-                <div id="expenses-table" class="table-shell"></div>
-              </article>
+              </div>
+              <div id="expenses-table" class="table-shell pnl-table-shell"></div>
+            </article>
+          </section>
 
-              <article class="panel">
-                <div class="panel-header">
-                  <div>
-                    <p class="section-caption">Add expense</p>
-                    <h3>Optional depreciation for investments</h3>
-                  </div>
-                </div>
-                <form class="form-grid" id="expense-form">
-                  <label class="control-select">
-                    <span>Label</span>
-                    <input id="expense-label-input" type="text" />
-                  </label>
-                  <label class="control-select">
-                    <span>Category</span>
-                    <input id="expense-category-input" type="text" />
-                  </label>
-                  <label class="control-select">
-                    <span>Amount (EUR)</span>
-                    <input id="expense-amount-input" type="number" min="0" step="0.01" />
-                  </label>
-                  <label class="control-select">
-                    <span>Frequency</span>
-                    <select id="expense-frequency-select">
-                      <option value="daily">Daily</option>
-                      <option value="monthly">Monthly</option>
-                      <option value="annual">Annual</option>
-                      <option value="one-time">One-time</option>
-                    </select>
-                  </label>
-                  <label class="control-select">
-                    <span>Depreciation (months)</span>
-                    <input id="expense-depreciation-input" type="number" min="0" step="1" />
-                  </label>
-                  <button id="save-expense" type="button" class="control-button primary">Save expense</button>
-                </form>
-              </article>
+          <section class="workspace-view" data-view="auslastung">
+            <div class="section-toolbar">
+              <div class="section-title-group">
+                <p class="section-caption">Utilization</p>
+                <h2>Utilization</h2>
+              </div>
             </div>
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="section-caption">Coming soon</p>
+                  <h3>Utilization overview</h3>
+                </div>
+              </div>
+              <div class="placeholder-message">
+                <p>This page is under construction. Staff and table utilization analytics will appear here.</p>
+              </div>
+            </article>
           </section>
 
           <section class="workspace-view" data-view="settings">
@@ -710,6 +703,12 @@
                     <p class="section-caption">Role preview</p>
                     <h3>Current role behavior</h3>
                   </div>
+                </div>
+                <div class="form-grid" style="padding: 12px 0 8px;">
+                  <label class="control-select">
+                    <span>Active role</span>
+                    <select id="role-select"></select>
+                  </label>
                 </div>
                 <div id="settings-summary" class="note-stack"></div>
               </article>

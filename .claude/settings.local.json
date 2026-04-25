@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__computer",
+      "mcp__Claude_in_Chrome__get_page_text",
+      "mcp__Claude_in_Chrome__javascript_tool",
+      "Bash(pandoc Brief.docx -t plain)",
+      "Bash(python3 -m zipfile -l Brief.docx)",
+      "Bash(python -m zipfile -l \"C:\\\\Users\\\\hp\\\\Downloads\\\\OneDrive_1_11-03-2026\\\\Brief.docx\")",
+      "Bash(python3)",
+      "PowerShell($path = \"C:\\\\Users\\\\hp\\\\Downloads\\\\OneDrive_1_11-03-2026\\\\AMITSCHI_Dashboard_Trends.xlsx\"; $excel = New-Object -ComObject Excel.Application; $excel.Visible = $false; $workbook = $excel.Workbooks.Open\\($path\\); Write-Host \"Sheet Names:`n\"; foreach\\($sheet in $workbook.Sheets\\) { Write-Host \"  - $\\($sheet.Name\\)\" }; $workbook.Close\\($false\\); $excel.Quit\\(\\))",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npx *)",
+      "Bash(where node *)",
+      "Bash(cmd /c \"where npx\")",
+      "Bash(cmd /c \"where node\")",
+      "Bash(cmd /c \"where python\")",
+      "mcp__Claude_in_Chrome__tabs_create_mcp",
+      "Bash(where python *)",
+      "Bash(where python3 *)",
+      "Bash(where http-server *)"
+    ]
+  }
+}
