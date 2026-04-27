@@ -582,6 +582,9 @@ function syncControls() {
   if (roleEl) roleEl.value = state.roleKey;
   document.getElementById("restaurant-select").value = state.restaurantKey;
   document.getElementById("sidebar-restaurant-select").value = state.restaurantKey;
+  const restaurantLabel = RESTAURANT_OPTIONS.find((item) => item.key === state.restaurantKey)?.label || "Restaurant";
+  const sidebarRestaurantCurrent = document.getElementById("sidebar-restaurant-current");
+  if (sidebarRestaurantCurrent) sidebarRestaurantCurrent.textContent = restaurantLabel;
   document.getElementById("revenue-mode").value = state.revenueMode;
   document.getElementById("compare-mode").value = state.compareMode;
   document.getElementById("range-preset-drawer").value = state.rangePreset;

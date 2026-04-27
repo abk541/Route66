@@ -42,15 +42,13 @@
         </div>
 
         <div class="sidebar-group">
-          <button class="sidebar-section-toggle" type="button">
+          <label class="sidebar-section-toggle sidebar-restaurant-toggle">
             <span class="sidebar-section-icon">▣</span>
             <span class="sidebar-section-text">Restaurant</span>
+            <select id="sidebar-restaurant-select" class="sidebar-restaurant-native" aria-label="Restaurant"></select>
             <span class="sidebar-section-caret">⌄</span>
-          </button>
-          <label class="sidebar-select sidebar-restaurant-select">
-            <span class="visually-hidden">Restaurant</span>
-            <select id="sidebar-restaurant-select"></select>
           </label>
+          <div class="sidebar-restaurant-current" id="sidebar-restaurant-current">Daisy's Diner - Oyten</div>
           <nav class="sidebar-nav" aria-label="Primary">
 
             <button class="sidebar-link sidebar-link--has-sub" data-page="dashboard" id="sidebar-dashboard-toggle">
