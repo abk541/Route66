@@ -3183,10 +3183,10 @@ tbody tr:hover {
 }
 
 .sidebar-logo-icon {
-  flex-basis: 32px;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
 }
 
 .sidebar-brand-name {
@@ -3202,14 +3202,27 @@ tbody tr:hover {
 body.sidebar-collapsed .sidebar-brand {
   display: flex;
   justify-content: center;
-  flex: 0 0 auto;
-  overflow: visible;
+  flex: 0 0 36px;
+  width: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  overflow: hidden;
+  gap: 0;
 }
 
 body.sidebar-collapsed .sidebar-logo-icon {
-  flex-basis: 32px;
-  width: 32px;
-  height: 32px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+}
+
+body.sidebar-collapsed .sidebar-brand-text {
+  display: block;
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
 }
 
 .dashboard-cluster-nav .dashboard-tab[data-dashboard-page="costs"],
@@ -3422,11 +3435,19 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-brand {
   display: flex;
   justify-content: flex-start;
   flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: none;
   overflow: hidden;
+  gap: 9px;
 }
 
 body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-brand-text {
   display: flex;
+  width: auto;
+  max-width: none;
+  opacity: 1;
+  visibility: visible;
 }
 
 body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-section-text,
@@ -3484,11 +3505,19 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon {
     display: flex;
     justify-content: flex-start;
     flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
     overflow: hidden;
+    gap: 9px;
   }
 
   body.sidebar-collapsed.sidebar-open .sidebar-brand-text {
     display: flex;
+    width: auto;
+    max-width: none;
+    opacity: 1;
+    visibility: visible;
   }
 
   body.sidebar-collapsed.sidebar-open .sidebar-section-text,
