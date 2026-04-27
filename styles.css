@@ -3225,6 +3225,15 @@ body.sidebar-collapsed .sidebar-brand-text {
   overflow: hidden;
 }
 
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:not(:hover) .sidebar-brand {
+  display: none;
+}
+
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:not(:hover) .sidebar-top {
+  justify-content: center;
+  gap: 0;
+}
+
 .dashboard-cluster-nav .dashboard-tab[data-dashboard-page="costs"],
 .dashboard-cluster-nav .dashboard-tab[data-dashboard-page="trends"] {
   display: none;
