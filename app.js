@@ -8,6 +8,11 @@ const ROLE_OPTIONS = [
   { key: "staff", label: "Floor Staff" },
 ];
 
+const RESTAURANT_OPTIONS = [
+  { key: "daisys-diner-oyten", label: "Daisy's Diner - Oyten" },
+  { key: "daisys-diner-bremen-test", label: "Daisy's Diner - Bremen (Test)" },
+];
+
 const GROUP_OPTIONS = [
   { key: "kitchen", label: "Kitchen" },
   { key: "bar", label: "Bar" },
@@ -178,7 +183,7 @@ const state = {
   revenueMode: "gross",
   compareMode: "none",
   roleKey: "manager",
-  restaurantKey: "primary-restaurant",
+  restaurantKey: "daisys-diner-oyten",
   rangePreset: "currentMonth",
   startDate: null,
   endDate: null,
@@ -233,7 +238,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializeControls() {
   fillSelect(document.getElementById("role-select"), ROLE_OPTIONS.map((item) => [item.key, item.label]));
   fillSelect(document.getElementById("mobile-page-select"), PAGE_ORDER.map((page) => [page, PAGE_LABELS[page]]));
-  fillSelect(document.getElementById("restaurant-select"), [["primary-restaurant", "Primary Restaurant"]]);
+  fillSelect(document.getElementById("restaurant-select"), RESTAURANT_OPTIONS.map((item) => [item.key, item.label]));
+  fillSelect(document.getElementById("sidebar-restaurant-select"), RESTAURANT_OPTIONS.map((item) => [item.key, item.label]));
   fillSelect(document.getElementById("range-preset-drawer"), RANGE_PRESETS);
   fillSelect(document.getElementById("trend-metric-select"), TREND_METRICS);
   fillSelect(document.getElementById("trend-preset-select"), TREND_GROUPINGS);
@@ -343,6 +349,11 @@ function wireEvents() {
   });
 
   document.getElementById("restaurant-select").addEventListener("change", (event) => {
+    state.restaurantKey = event.target.value;
+    renderAll();
+  });
+
+  document.getElementById("sidebar-restaurant-select").addEventListener("change", (event) => {
     state.restaurantKey = event.target.value;
     renderAll();
   });
@@ -570,6 +581,7 @@ function syncControls() {
   const roleEl = document.getElementById("role-select");
   if (roleEl) roleEl.value = state.roleKey;
   document.getElementById("restaurant-select").value = state.restaurantKey;
+  document.getElementById("sidebar-restaurant-select").value = state.restaurantKey;
   document.getElementById("revenue-mode").value = state.revenueMode;
   document.getElementById("compare-mode").value = state.compareMode;
   document.getElementById("range-preset-drawer").value = state.rangePreset;

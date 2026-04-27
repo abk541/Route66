@@ -1877,6 +1877,17 @@ body[data-theme="light"] .sidebar {
   font-size: 0.78rem;
 }
 
+.sidebar-restaurant-select {
+  display: block;
+  width: 100%;
+  padding: 0 4px 4px;
+}
+
+.sidebar-restaurant-select select {
+  width: 100%;
+  color: #c8cede;
+}
+
 .sidebar-dataset-switcher {
   width: 100%;
 }
@@ -2730,6 +2741,7 @@ body.sidebar-collapsed .sidebar-section-caret,
 body.sidebar-collapsed .sidebar-link > span:not(.sidebar-link-icon),
 body.sidebar-collapsed .sidebar-link-caret,
 body.sidebar-collapsed .sidebar-sub-nav,
+body.sidebar-collapsed .sidebar-restaurant-select,
 body.sidebar-collapsed .sidebar-utilities,
 body.sidebar-collapsed .sidebar-footer-nav > .sidebar-link > span:not(.sidebar-link-icon) {
   display: none;
@@ -3474,6 +3486,10 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-sub-nav.side
   display: block;
 }
 
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-restaurant-select {
+  display: block;
+}
+
 body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-utilities {
   display: grid;
 }
@@ -3538,6 +3554,10 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon {
   }
 
   body.sidebar-collapsed.sidebar-open .sidebar-sub-nav.sidebar-sub-open {
+    display: block;
+  }
+
+  body.sidebar-collapsed.sidebar-open .sidebar-restaurant-select {
     display: block;
   }
 
