@@ -46,7 +46,7 @@ const PAGE_LABELS = {
 };
 
 const PAGE_ORDER = Object.keys(PAGE_LABELS);
-const DASHBOARD_CLUSTER_PAGES = ["dashboard", "heatmap"];
+const DASHBOARD_CLUSTER_PAGES = ["dashboard"];
 
 const PNL_MONTHS = [
   ["jan", "January"],
