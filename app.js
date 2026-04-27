@@ -924,7 +924,6 @@ function renderPresetCards() {
 }
 
 function renderDashboard(context) {
-  document.getElementById("dashboard-main-table").innerHTML = buildDashboardTable(context.summary, context.comparison.summary);
   renderDashboardNote();
 }
 
