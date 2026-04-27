@@ -1930,12 +1930,30 @@ body[data-theme="light"] .sidebar {
   transition: opacity 150ms ease;
 }
 
+.sidebar-link-icon svg,
+.sidebar-section-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .sidebar-link:hover .sidebar-link-icon,
 .sidebar-link.active .sidebar-link-icon {
   opacity: 1;
 }
 
 .sidebar-section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
   color: #434858;
   font-size: 0.68rem;
 }
@@ -2838,6 +2856,12 @@ body.sidebar-collapsed .sidebar-link-icon {
   font-size: 0.9rem;
 }
 
+body.sidebar-collapsed .sidebar-link-icon svg,
+body.sidebar-collapsed .sidebar-section-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* ─── Sidebar brand ───────────────────────────────────────────────────── */
 
 .sidebar-top {
@@ -3598,6 +3622,12 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon {
   width: 15px;
   height: 15px;
   font-size: 0.75rem;
+}
+
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon svg,
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-section-icon svg {
+  width: 15px;
+  height: 15px;
 }
 
 @media (max-width: 960px) {

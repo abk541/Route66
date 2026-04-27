@@ -600,7 +600,15 @@ function renderSidebarRestaurantOptions() {
   el.innerHTML = RESTAURANT_OPTIONS.map(
     (item) => `
       <button class="sidebar-sub-link sidebar-restaurant-option" type="button" data-restaurant-key="${item.key}">
-        <span class="sidebar-link-icon">□</span>
+        <span class="sidebar-link-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 9h16"></path>
+            <path d="M6 9v10h12V9"></path>
+            <path d="M8 9V6h8v3"></path>
+            <path d="M9 13h6"></path>
+            <path d="M9 16h4"></path>
+          </svg>
+        </span>
         <span>${item.label}</span>
       </button>
     `,
