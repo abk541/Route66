@@ -90,9 +90,15 @@ const PNL_ROWS = [
 const RANGE_PRESETS = [
   ["today", "Today"],
   ["yesterday", "Yesterday"],
+  ["twoDaysAgo", "2 Days Ago"],
+  ["threeDaysAgo", "3 Days Ago"],
+  ["sevenDaysAgo", "7 Days Ago"],
+  ["eightDaysAgo", "8 Days Ago"],
   ["currentMonth", "Current Month"],
   ["currentMonthForecast", "Current Month (Forecast)"],
   ["lastMonth", "Last Month"],
+  ["monthBeforeLast", "Month Before Last"],
+  ["threeMonthsAgo", "3 Months Ago"],
   ["last7", "7 Days"],
   ["last14", "14 Days"],
   ["last30", "30 Days"],
@@ -105,6 +111,71 @@ const RANGE_PRESETS = [
   ["twoQuartersAgo", "2 Quarters Ago"],
   ["threeQuartersAgo", "3 Quarters Ago"],
   ["custom", "Select Time Range"],
+];
+
+const RANGE_PRESET_LABELS = Object.fromEntries(RANGE_PRESETS);
+
+const TIME_RANGE_GROUPS = [
+  {
+    key: "dashboardDefault",
+    label: "Today / Yesterday / Current Month / Current Month (Forecast) / Last Month",
+    presets: ["today", "yesterday", "currentMonth", "currentMonthForecast", "lastMonth"],
+    primaryPreset: "currentMonth",
+  },
+  {
+    key: "monthBasic",
+    label: "Today / Yesterday / Current Month / Last Month",
+    presets: ["today", "yesterday", "currentMonth", "lastMonth"],
+    primaryPreset: "currentMonth",
+  },
+  {
+    key: "rollingDays",
+    label: "Today / Yesterday / 7 Days / 14 Days / 30 Days",
+    presets: ["today", "yesterday", "last7", "last14", "last30"],
+    primaryPreset: "last30",
+  },
+  {
+    key: "weeks",
+    label: "This Week / Last Week / Week Before Last / 3 Weeks Ago",
+    presets: ["thisWeek", "lastWeek", "twoWeeksAgo", "threeWeeksAgo"],
+    primaryPreset: "thisWeek",
+  },
+  {
+    key: "months",
+    label: "Current Month / Last Month / Month Before Last / 3 Months Ago",
+    presets: ["currentMonth", "lastMonth", "monthBeforeLast", "threeMonthsAgo"],
+    primaryPreset: "currentMonth",
+  },
+  {
+    key: "recentDays",
+    label: "Today / Yesterday / 2 Days Ago / 3 Days Ago",
+    presets: ["today", "yesterday", "twoDaysAgo", "threeDaysAgo"],
+    primaryPreset: "today",
+  },
+  {
+    key: "priorDays",
+    label: "Today / Yesterday / 7 Days Ago / 8 Days Ago",
+    presets: ["today", "yesterday", "sevenDaysAgo", "eightDaysAgo"],
+    primaryPreset: "today",
+  },
+  {
+    key: "quarters",
+    label: "This Quarter / Last Quarter / 2 Quarters Ago / 3 Quarters Ago",
+    presets: ["thisQuarter", "lastQuarter", "twoQuartersAgo", "threeQuartersAgo"],
+    primaryPreset: "thisQuarter",
+  },
+  {
+    key: "custom",
+    label: "Select Time Range",
+    presets: ["custom"],
+    primaryPreset: "custom",
+  },
+];
+
+const TIME_COMPARE_OPTIONS = [
+  ["none", "Do Not Compare"],
+  ["previous", "Compare with Previous Period"],
+  ["lastYear", "Compare with the Same Period Last Year"],
 ];
 
 const TREND_GROUPINGS = [
@@ -153,7 +224,7 @@ const CATEGORY_COST_RATES = {
   Other: 0.28,
 };
 
-const CARD_PRESETS = [
+let CARD_PRESETS = [
   ["today", "Today"],
   ["yesterday", "Yesterday"],
   ["currentMonth", "Current Month"],
@@ -189,6 +260,8 @@ const state = {
   startDate: null,
   endDate: null,
   filtersOpen: false,
+  timeRangeMenuOpen: false,
+  timeRangeGroupKey: "dashboardDefault",
   searchQuery: "",
   pendingFilters: [],
   appliedFilters: [],
@@ -243,6 +316,7 @@ function initializeControls() {
   fillSelect(document.getElementById("mobile-page-select"), PAGE_ORDER.map((page) => [page, PAGE_LABELS[page]]));
   fillSelect(document.getElementById("restaurant-select"), RESTAURANT_OPTIONS.map((item) => [item.key, item.label]));
   renderSidebarRestaurantOptions();
+  renderTimeRangeMenu();
   fillSelect(document.getElementById("range-preset-drawer"), RANGE_PRESETS);
   fillSelect(document.getElementById("trend-metric-select"), TREND_METRICS);
   fillSelect(document.getElementById("trend-preset-select"), TREND_GROUPINGS);
@@ -388,6 +462,32 @@ function wireEvents() {
   document.getElementById("compare-mode").addEventListener("change", (event) => {
     state.compareMode = event.target.value;
     renderAll();
+  });
+
+  document.getElementById("time-range-menu-button").addEventListener("click", (event) => {
+    event.stopPropagation();
+    state.timeRangeMenuOpen = !state.timeRangeMenuOpen;
+    syncTimeRangeMenu();
+  });
+
+  document.getElementById("time-range-menu").addEventListener("click", (event) => {
+    const rangeButton = event.target.closest("[data-time-range-group]");
+    const compareButton = event.target.closest("[data-compare-mode]");
+    if (rangeButton) {
+      applyTimeRangeGroup(rangeButton.dataset.timeRangeGroup);
+    } else if (compareButton) {
+      state.compareMode = compareButton.dataset.compareMode;
+      state.timeRangeMenuOpen = false;
+      renderAll();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!state.timeRangeMenuOpen || event.target.closest(".time-range-menu-wrap")) {
+      return;
+    }
+    state.timeRangeMenuOpen = false;
+    syncTimeRangeMenu();
   });
 
   document.getElementById("range-preset-drawer").addEventListener("change", (event) => {
@@ -630,6 +730,67 @@ function renderSidebarRestaurantOptions() {
   ).join("");
 }
 
+function renderTimeRangeMenu() {
+  const el = document.getElementById("time-range-menu");
+  if (!el) return;
+  el.innerHTML = `
+    <div class="time-range-menu-section">
+      ${TIME_RANGE_GROUPS.map(
+        (item) => `
+          <button class="time-range-menu-item" type="button" data-time-range-group="${item.key}" role="menuitem">
+            <span class="time-range-check" aria-hidden="true">✓</span>
+            <span>${item.label}</span>
+          </button>
+        `,
+      ).join("")}
+    </div>
+    <div class="time-range-menu-section">
+      ${TIME_COMPARE_OPTIONS.map(
+        ([key, label]) => `
+          <button class="time-range-menu-item" type="button" data-compare-mode="${key}" role="menuitem">
+            <span class="time-range-check" aria-hidden="true">✓</span>
+            <span>${label}</span>
+          </button>
+        `,
+      ).join("")}
+    </div>
+    <div class="time-range-menu-section time-range-menu-muted">
+      <button class="time-range-menu-item" type="button" disabled>
+        <span class="time-range-gear" aria-hidden="true">⚙</span>
+        <span>Configure tiles</span>
+      </button>
+    </div>
+  `;
+}
+
+function syncTimeRangeMenu() {
+  const menu = document.getElementById("time-range-menu");
+  const button = document.getElementById("time-range-menu-button");
+  const label = document.getElementById("time-range-button-label");
+  if (!menu || !button || !label) return;
+  const activeGroup = TIME_RANGE_GROUPS.find((item) => item.key === state.timeRangeGroupKey) || TIME_RANGE_GROUPS[0];
+  const compareLabel = TIME_COMPARE_OPTIONS.find(([key]) => key === state.compareMode)?.[1] || "Do Not Compare";
+  label.textContent = "Time Range";
+  button.setAttribute("aria-expanded", state.timeRangeMenuOpen ? "true" : "false");
+  button.title = `${activeGroup.label} | ${compareLabel}`;
+  menu.classList.toggle("open", state.timeRangeMenuOpen);
+  menu.querySelectorAll("[data-time-range-group]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.timeRangeGroup === state.timeRangeGroupKey);
+  });
+  menu.querySelectorAll("[data-compare-mode]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.compareMode === state.compareMode);
+  });
+}
+
+function applyTimeRangeGroup(groupKey) {
+  const group = TIME_RANGE_GROUPS.find((item) => item.key === groupKey) || TIME_RANGE_GROUPS[0];
+  state.timeRangeGroupKey = group.key;
+  CARD_PRESETS = group.presets.map((preset) => [preset, RANGE_PRESET_LABELS[preset] || preset]);
+  applyRangePreset(group.primaryPreset);
+  state.timeRangeMenuOpen = false;
+  renderAll();
+}
+
 function syncControls() {
   const roleEl = document.getElementById("role-select");
   if (roleEl) roleEl.value = state.roleKey;
@@ -648,6 +809,7 @@ function syncControls() {
   const graphicEnd = document.getElementById("graphic-end-date");
   if (graphicStart) graphicStart.value = state.startDate;
   if (graphicEnd) graphicEnd.value = state.endDate;
+  syncTimeRangeMenu();
   document.getElementById("table-sort").value = state.tableSort;
   document.getElementById("page-title").textContent = PAGE_LABELS[state.currentPage];
 
@@ -2560,27 +2722,12 @@ function emptyComparisonSummary() {
 }
 
 function buildCardModel(key, label) {
-  let start = state.startDate;
-  let end = state.endDate;
+  let start;
+  let end;
   let summary;
   let compareText;
   let rangeLabel;
-  if (key === "today") {
-    start = currentDataset().meta.dataMaxDate;
-    end = start;
-    summary = buildSummaryFromRange(currentProcessed(), buildFilterState(), start, end);
-    rangeLabel = formatRange(start, end);
-  } else if (key === "yesterday") {
-    start = toIso(addDays(fromIso(currentDataset().meta.dataMaxDate), -1));
-    end = start;
-    summary = buildSummaryFromRange(currentProcessed(), buildFilterState(), start, end);
-    rangeLabel = formatRange(start, end);
-  } else if (key === "currentMonth") {
-    start = toIso(startOfMonth(fromIso(currentDataset().meta.dataMaxDate)));
-    end = currentDataset().meta.dataMaxDate;
-    summary = buildSummaryFromRange(currentProcessed(), buildFilterState(), start, end);
-    rangeLabel = formatRange(start, end);
-  } else if (key === "currentMonthForecast") {
+  if (key === "currentMonthForecast") {
     const forecast = buildForecastCardSummary();
     start = forecast.start;
     end = forecast.end;
@@ -2588,9 +2735,9 @@ function buildCardModel(key, label) {
     rangeLabel = `${shortDate(start)} - ${shortDate(forecast.fullEnd)}`;
     compareText = forecast.note;
   } else {
-    const month = addMonths(fromIso(currentDataset().meta.dataMaxDate), -1);
-    start = toIso(startOfMonth(month));
-    end = toIso(endOfMonth(month));
+    const range = resolveRangePresetDates(key);
+    start = range.start;
+    end = range.end;
     summary = buildSummaryFromRange(currentProcessed(), buildFilterState(), start, end);
     rangeLabel = formatRange(start, end);
   }
@@ -3767,7 +3914,6 @@ function fillSelect(select, options) {
 }
 
 function applyRangePreset(preset) {
-  const maxDate = fromIso(currentDataset().meta.dataMaxDate);
   state.rangePreset = preset;
   if (preset === "custom") {
     state.filtersOpen = true;
@@ -3775,60 +3921,55 @@ function applyRangePreset(preset) {
     state.endDate = state.endDate || currentDataset().meta.dataMaxDate;
     return;
   }
-  if (preset === "today") {
-    state.startDate = currentDataset().meta.dataMaxDate;
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "yesterday") {
-    state.startDate = toIso(addDays(maxDate, -1));
-    state.endDate = state.startDate;
-  } else if (preset === "currentMonth" || preset === "currentMonthForecast") {
-    state.startDate = toIso(startOfMonth(maxDate));
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "lastMonth") {
-    const month = addMonths(maxDate, -1);
-    state.startDate = toIso(startOfMonth(month));
-    state.endDate = toIso(endOfMonth(month));
-  } else if (preset === "last7") {
-    state.startDate = toIso(addDays(maxDate, -6));
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "last14") {
-    state.startDate = toIso(addDays(maxDate, -13));
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "last30") {
-    state.startDate = toIso(addDays(maxDate, -29));
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "thisWeek") {
-    state.startDate = toIso(startOfWeek(maxDate));
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "lastWeek") {
-    const end = addDays(startOfWeek(maxDate), -1);
-    state.startDate = toIso(addDays(end, -6));
-    state.endDate = toIso(end);
-  } else if (preset === "twoWeeksAgo") {
-    const end = addDays(startOfWeek(maxDate), -8);
-    state.startDate = toIso(addDays(end, -6));
-    state.endDate = toIso(end);
-  } else if (preset === "threeWeeksAgo") {
-    const end = addDays(startOfWeek(maxDate), -15);
-    state.startDate = toIso(addDays(end, -6));
-    state.endDate = toIso(end);
-  } else if (preset === "thisQuarter") {
-    state.startDate = toIso(startOfQuarter(maxDate));
-    state.endDate = currentDataset().meta.dataMaxDate;
-  } else if (preset === "lastQuarter") {
-    const quarter = addMonths(startOfQuarter(maxDate), -1);
-    state.startDate = toIso(startOfQuarter(quarter));
-    state.endDate = toIso(endOfQuarter(quarter));
-  } else if (preset === "twoQuartersAgo") {
-    const quarter = addMonths(startOfQuarter(maxDate), -4);
-    state.startDate = toIso(startOfQuarter(quarter));
-    state.endDate = toIso(endOfQuarter(quarter));
-  } else if (preset === "threeQuartersAgo") {
-    const quarter = addMonths(startOfQuarter(maxDate), -7);
-    state.startDate = toIso(startOfQuarter(quarter));
-    state.endDate = toIso(endOfQuarter(quarter));
-  }
+  const range = resolveRangePresetDates(preset);
+  state.startDate = range.start;
+  state.endDate = range.end;
   normalizeDateRange();
+}
+
+function resolveRangePresetDates(preset) {
+  const maxDate = fromIso(currentDataset().meta.dataMaxDate);
+  const dayOffsets = {
+    today: 0,
+    yesterday: -1,
+    twoDaysAgo: -2,
+    threeDaysAgo: -3,
+    sevenDaysAgo: -7,
+    eightDaysAgo: -8,
+  };
+  if (Object.prototype.hasOwnProperty.call(dayOffsets, preset)) {
+    const date = toIso(addDays(maxDate, dayOffsets[preset]));
+    return { start: date, end: date };
+  }
+  if (preset === "currentMonth" || preset === "currentMonthForecast") {
+    return { start: toIso(startOfMonth(maxDate)), end: currentDataset().meta.dataMaxDate };
+  }
+  if (["lastMonth", "monthBeforeLast", "threeMonthsAgo"].includes(preset)) {
+    const offset = preset === "lastMonth" ? -1 : preset === "monthBeforeLast" ? -2 : -3;
+    const month = addMonths(maxDate, offset);
+    return { start: toIso(startOfMonth(month)), end: toIso(endOfMonth(month)) };
+  }
+  if (preset === "last7" || preset === "last14" || preset === "last30") {
+    const span = preset === "last7" ? 7 : preset === "last14" ? 14 : 30;
+    return { start: toIso(addDays(maxDate, -(span - 1))), end: currentDataset().meta.dataMaxDate };
+  }
+  if (preset === "thisWeek") {
+    return { start: toIso(startOfWeek(maxDate)), end: currentDataset().meta.dataMaxDate };
+  }
+  if (["lastWeek", "twoWeeksAgo", "threeWeeksAgo"].includes(preset)) {
+    const offset = preset === "lastWeek" ? -1 : preset === "twoWeeksAgo" ? -8 : -15;
+    const end = addDays(startOfWeek(maxDate), offset);
+    return { start: toIso(addDays(end, -6)), end: toIso(end) };
+  }
+  if (preset === "thisQuarter") {
+    return { start: toIso(startOfQuarter(maxDate)), end: currentDataset().meta.dataMaxDate };
+  }
+  if (["lastQuarter", "twoQuartersAgo", "threeQuartersAgo"].includes(preset)) {
+    const offset = preset === "lastQuarter" ? -1 : preset === "twoQuartersAgo" ? -4 : -7;
+    const quarter = addMonths(startOfQuarter(maxDate), offset);
+    return { start: toIso(startOfQuarter(quarter)), end: toIso(endOfQuarter(quarter)) };
+  }
+  return { start: currentDataset().meta.dataMinDate, end: currentDataset().meta.dataMaxDate };
 }
 
 function normalizeDateRange() {

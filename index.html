@@ -332,7 +332,23 @@
               </select>
             </label>
 
-            <label class="control-select utility-select utility-select-compare">
+            <div class="time-range-menu-wrap">
+              <button id="time-range-menu-button" class="utility-menu-button" type="button" aria-expanded="false" aria-controls="time-range-menu">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                  <path d="M8 3v4"></path>
+                  <path d="M16 3v4"></path>
+                  <path d="M4 10h16"></path>
+                </svg>
+                <span id="time-range-button-label">Time Range</span>
+                <svg class="utility-menu-caret" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 15l6-6 6 6"></path>
+                </svg>
+              </button>
+              <div id="time-range-menu" class="time-range-menu" role="menu"></div>
+            </div>
+
+            <label class="control-select utility-select utility-select-compare visually-hidden">
               <span class="visually-hidden">Compare period</span>
               <select id="compare-mode">
                 <option value="none">No comparison</option>

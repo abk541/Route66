@@ -542,6 +542,126 @@ thead th,
   display: flex;
 }
 
+.time-range-menu-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.utility-menu-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #313131;
+  border-radius: 2px;
+  background: #1f1f1f;
+  color: #d2d2d2;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.utility-menu-button:hover,
+.utility-menu-button[aria-expanded="true"] {
+  background: #252525;
+  color: #ffffff;
+}
+
+.utility-menu-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.utility-menu-caret {
+  transition: transform 150ms ease;
+}
+
+.utility-menu-button[aria-expanded="false"] .utility-menu-caret {
+  transform: rotate(180deg);
+}
+
+.time-range-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  display: none;
+  width: min(92vw, 720px);
+  padding: 14px 0 0;
+  border: 1px solid #303030;
+  background: #222222;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.42);
+}
+
+.time-range-menu.open {
+  display: block;
+}
+
+.time-range-menu-section {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0 14px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.time-range-menu-section:first-child {
+  padding-top: 0;
+}
+
+.time-range-menu-section:last-child {
+  border-bottom: 0;
+}
+
+.time-range-menu-item {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 24px;
+  border: 0;
+  background: transparent;
+  color: #d1d1d1;
+  text-align: left;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.time-range-menu-item:hover,
+.time-range-menu-item.active {
+  color: #6f9aff;
+}
+
+.time-range-check {
+  color: #6f9aff;
+  font-size: 1rem;
+  opacity: 0;
+}
+
+.time-range-menu-item.active .time-range-check {
+  opacity: 1;
+}
+
+.time-range-menu-muted .time-range-menu-item {
+  color: #7c7c7c;
+  cursor: default;
+}
+
+.time-range-gear {
+  color: #8a8a8a;
+  font-size: 1rem;
+}
+
 .status-row {
   margin-top: 10px;
   align-items: stretch;
