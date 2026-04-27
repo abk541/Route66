@@ -1837,16 +1837,6 @@ body[data-theme="light"] .sidebar {
   flex: 1 1 auto;
 }
 
-.sidebar-restaurant-native {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 2;
-}
-
 .sidebar-restaurant-current {
   display: block;
   margin: 0;
@@ -1876,6 +1866,26 @@ body[data-theme="light"] .sidebar {
 .sidebar-restaurant-toggle .sidebar-restaurant-copy {
   position: relative;
   z-index: 1;
+}
+
+.sidebar-restaurant-options {
+  margin: -2px 0 6px;
+  border-radius: 0 0 8px 8px;
+}
+
+.sidebar-restaurant-options.sidebar-sub-open {
+  max-height: 120px;
+  border-bottom-color: #232832;
+}
+
+.sidebar-restaurant-option {
+  padding-left: 30px;
+  background: #10141b;
+}
+
+.sidebar-restaurant-option.active {
+  color: #f0f3ff;
+  background: rgba(127, 149, 255, 0.16);
 }
 
 .sidebar-link {

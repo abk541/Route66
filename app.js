@@ -199,6 +199,7 @@ const state = {
   cardModels: [],
   renderContext: null,
   drilldownTab: "today",
+  sidebarRestaurantSubOpen: false,
   sidebarDashSubOpen: true,
   sidebarFoodSubOpen: true,
 };
@@ -239,7 +240,7 @@ function initializeControls() {
   fillSelect(document.getElementById("role-select"), ROLE_OPTIONS.map((item) => [item.key, item.label]));
   fillSelect(document.getElementById("mobile-page-select"), PAGE_ORDER.map((page) => [page, PAGE_LABELS[page]]));
   fillSelect(document.getElementById("restaurant-select"), RESTAURANT_OPTIONS.map((item) => [item.key, item.label]));
-  fillSelect(document.getElementById("sidebar-restaurant-select"), RESTAURANT_OPTIONS.map((item) => [item.key, item.label]));
+  renderSidebarRestaurantOptions();
   fillSelect(document.getElementById("range-preset-drawer"), RANGE_PRESETS);
   fillSelect(document.getElementById("trend-metric-select"), TREND_METRICS);
   fillSelect(document.getElementById("trend-preset-select"), TREND_GROUPINGS);
@@ -296,9 +297,16 @@ function wireEvents() {
     syncSidebarSubNavs();
   });
 
+  document.getElementById("sidebar-restaurant-toggle").addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.sidebarRestaurantSubOpen = !state.sidebarRestaurantSubOpen;
+    syncSidebarSubNavs();
+  });
+
   // Close sub-navs when clicking in main content area
   document.querySelector(".app-content").addEventListener("click", () => {
     if (window.innerWidth > 960) return; // desktop: keep open for nav ease
+    state.sidebarRestaurantSubOpen = false;
     state.sidebarDashSubOpen = false;
     state.sidebarFoodSubOpen = false;
     syncSidebarSubNavs();
@@ -353,8 +361,13 @@ function wireEvents() {
     renderAll();
   });
 
-  document.getElementById("sidebar-restaurant-select").addEventListener("change", (event) => {
-    state.restaurantKey = event.target.value;
+  document.getElementById("sidebar-restaurant-options").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-restaurant-key]");
+    if (!button) {
+      return;
+    }
+    state.restaurantKey = button.dataset.restaurantKey;
+    state.sidebarRestaurantSubOpen = false;
     renderAll();
   });
 
@@ -567,21 +580,37 @@ function needsStaffingRange(page) {
 }
 
 function syncSidebarSubNavs() {
+  const restaurantSub = document.getElementById("sidebar-restaurant-options");
+  const restaurantBtn = document.getElementById("sidebar-restaurant-toggle");
   const dashSub = document.getElementById("sidebar-dashboard-sub");
   const foodSub = document.getElementById("sidebar-food-sub");
   const dashBtn = document.getElementById("sidebar-dashboard-toggle");
   const foodBtn = document.getElementById("sidebar-food-toggle");
+  if (restaurantSub) restaurantSub.classList.toggle("sidebar-sub-open", state.sidebarRestaurantSubOpen);
+  if (restaurantBtn) restaurantBtn.classList.toggle("sub-open", state.sidebarRestaurantSubOpen);
   if (dashSub) dashSub.classList.toggle("sidebar-sub-open", state.sidebarDashSubOpen);
   if (foodSub) foodSub.classList.toggle("sidebar-sub-open", state.sidebarFoodSubOpen);
   if (dashBtn) dashBtn.classList.toggle("sub-open", state.sidebarDashSubOpen);
   if (foodBtn) foodBtn.classList.toggle("sub-open", state.sidebarFoodSubOpen);
 }
 
+function renderSidebarRestaurantOptions() {
+  const el = document.getElementById("sidebar-restaurant-options");
+  if (!el) return;
+  el.innerHTML = RESTAURANT_OPTIONS.map(
+    (item) => `
+      <button class="sidebar-sub-link sidebar-restaurant-option" type="button" data-restaurant-key="${item.key}">
+        <span class="sidebar-link-icon">□</span>
+        <span>${item.label}</span>
+      </button>
+    `,
+  ).join("");
+}
+
 function syncControls() {
   const roleEl = document.getElementById("role-select");
   if (roleEl) roleEl.value = state.roleKey;
   document.getElementById("restaurant-select").value = state.restaurantKey;
-  document.getElementById("sidebar-restaurant-select").value = state.restaurantKey;
   const restaurantLabel = RESTAURANT_OPTIONS.find((item) => item.key === state.restaurantKey)?.label || "Restaurant";
   const sidebarRestaurantCurrent = document.getElementById("sidebar-restaurant-current");
   if (sidebarRestaurantCurrent) sidebarRestaurantCurrent.textContent = restaurantLabel;
@@ -625,6 +654,10 @@ function syncControls() {
   });
 
   document.querySelectorAll(".sidebar-sub-link").forEach((button) => {
+    if (button.dataset.restaurantKey) {
+      button.classList.toggle("active", button.dataset.restaurantKey === state.restaurantKey);
+      return;
+    }
     const isActive = button.dataset.page === state.currentPage &&
       (button.dataset.mode ? button.dataset.mode === state.explorerMode : true);
     button.classList.toggle("active", isActive);
