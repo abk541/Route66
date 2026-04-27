@@ -33,15 +33,16 @@ const UNIT_OPTIONS = [
 const PAGE_LABELS = {
   dashboard: "Dashboard",
   explorer: "Products",
-  heatmap: "Grafik",
-  trends: "Trends",
-  matrix: "Product Matrix",
-  transactions: "POS Transactions",
-  employees: "Employees",
+  consumption: "Consumption",
   purchasing: "Purchasing",
   recipes: "Recipes",
+  heatmap: "Grafik",
+  trends: "Trends",
   costs: "P&L",
   auslastung: "Utilization",
+  employees: "Employees",
+  matrix: "Product Matrix",
+  transactions: "Bookings",
   settings: "Settings",
 };
 
@@ -202,6 +203,7 @@ const state = {
   sidebarRestaurantSubOpen: false,
   sidebarDashSubOpen: true,
   sidebarFoodSubOpen: true,
+  sidebarExpensesSubOpen: true,
 };
 
 const runtimeCache = {
@@ -297,6 +299,12 @@ function wireEvents() {
     syncSidebarSubNavs();
   });
 
+  document.getElementById("sidebar-expenses-toggle").addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.sidebarExpensesSubOpen = !state.sidebarExpensesSubOpen;
+    syncSidebarSubNavs();
+  });
+
   document.getElementById("sidebar-restaurant-toggle").addEventListener("click", (e) => {
     e.stopPropagation();
     state.sidebarRestaurantSubOpen = !state.sidebarRestaurantSubOpen;
@@ -309,6 +317,7 @@ function wireEvents() {
     state.sidebarRestaurantSubOpen = false;
     state.sidebarDashSubOpen = false;
     state.sidebarFoodSubOpen = false;
+    state.sidebarExpensesSubOpen = false;
     syncSidebarSubNavs();
   });
 
@@ -558,6 +567,8 @@ function renderActivePage(context) {
     renderEmployees(context);
   } else if (state.currentPage === "purchasing") {
     renderPurchasing();
+  } else if (state.currentPage === "consumption") {
+    renderConsumption(context);
   } else if (state.currentPage === "recipes") {
     renderRecipes(context);
   } else if (state.currentPage === "costs") {
@@ -584,14 +595,18 @@ function syncSidebarSubNavs() {
   const restaurantBtn = document.getElementById("sidebar-restaurant-toggle");
   const dashSub = document.getElementById("sidebar-dashboard-sub");
   const foodSub = document.getElementById("sidebar-food-sub");
+  const expensesSub = document.getElementById("sidebar-expenses-sub");
   const dashBtn = document.getElementById("sidebar-dashboard-toggle");
   const foodBtn = document.getElementById("sidebar-food-toggle");
+  const expensesBtn = document.getElementById("sidebar-expenses-toggle");
   if (restaurantSub) restaurantSub.classList.toggle("sidebar-sub-open", state.sidebarRestaurantSubOpen);
   if (restaurantBtn) restaurantBtn.classList.toggle("sub-open", state.sidebarRestaurantSubOpen);
   if (dashSub) dashSub.classList.toggle("sidebar-sub-open", state.sidebarDashSubOpen);
   if (foodSub) foodSub.classList.toggle("sidebar-sub-open", state.sidebarFoodSubOpen);
+  if (expensesSub) expensesSub.classList.toggle("sidebar-sub-open", state.sidebarExpensesSubOpen);
   if (dashBtn) dashBtn.classList.toggle("sub-open", state.sidebarDashSubOpen);
   if (foodBtn) foodBtn.classList.toggle("sub-open", state.sidebarFoodSubOpen);
+  if (expensesBtn) expensesBtn.classList.toggle("sub-open", state.sidebarExpensesSubOpen);
 }
 
 function renderSidebarRestaurantOptions() {
@@ -889,6 +904,10 @@ function renderEmployees(context) {
 function renderPurchasing() {
   document.getElementById("purchasing-table").innerHTML = buildPurchasingTable();
   renderIngredientEditor();
+}
+
+function renderConsumption(context) {
+  document.getElementById("consumption-page-table").innerHTML = buildConsumptionTable(context);
 }
 
 function renderRecipes(context) {
@@ -3071,7 +3090,7 @@ function loadLocalModel() {
 }
 
 function migratePermissions() {
-  const newPages = ["auslastung"];
+  const newPages = ["auslastung", "consumption"];
   ["owner", "manager"].forEach((role) => {
     const current = new Set(localModel.permissions[role] || []);
     newPages.forEach((page) => current.add(page));
