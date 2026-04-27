@@ -1006,6 +1006,50 @@ tbody tr:hover {
   gap: 10px;
 }
 
+.entity-icon,
+.kpi-table-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border: 1px solid rgba(127, 149, 255, 0.28);
+  border-radius: 7px;
+  background: rgba(127, 149, 255, 0.08);
+  color: #8fa3ff;
+}
+
+.entity-icon svg,
+.kpi-table-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.entity-icon-categories {
+  color: #72c5bd;
+  border-color: rgba(114, 197, 189, 0.28);
+  background: rgba(114, 197, 189, 0.08);
+}
+
+.entity-icon-team {
+  color: #f2b46f;
+  border-color: rgba(242, 180, 111, 0.3);
+  background: rgba(242, 180, 111, 0.08);
+}
+
+.kpi-table-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .rank-pill {
   width: 28px;
   height: 28px;
@@ -3148,9 +3192,17 @@ body.sidebar-collapsed .sidebar-toggle-button {
 
 .dashboard-drilldown-bar {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0;
   margin: 16px 0 0;
   border-bottom: 1px solid var(--line);
+}
+
+.drilldown-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
 }
 
 .drilldown-tab {
@@ -3173,6 +3225,49 @@ body.sidebar-collapsed .sidebar-toggle-button {
 .drilldown-tab.active {
   color: var(--blue);
   border-bottom-color: var(--blue);
+}
+
+.drilldown-kpi-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.drilldown-kpi-filter select {
+  min-height: 30px;
+  padding: 5px 28px 5px 10px;
+  border: 1px solid #313131;
+  border-radius: 4px;
+  background: #1a1c23;
+  color: var(--text);
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.dashboard-table-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(67, 77, 93, 0.66);
+  background: rgba(13, 17, 24, 0.72);
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dashboard-table-meta strong {
+  color: var(--text);
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 #dashboard-drilldown-content {
@@ -3206,12 +3301,17 @@ body.sidebar-collapsed .sidebar-toggle-button {
 /* Metric cards — accent top bar + hover lift */
 .metric-card {
   transition: transform 180ms ease, box-shadow 180ms ease;
-  cursor: default;
+  cursor: pointer;
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 22px 48px rgba(5, 9, 15, 0.32);
+}
+
+.metric-card.active {
+  border-color: #6f86f0;
+  box-shadow: 0 0 0 2px rgba(111, 134, 240, 0.22), 0 22px 48px rgba(5, 9, 15, 0.32);
 }
 
 /* Dashboard cluster nav — polished pill shape */

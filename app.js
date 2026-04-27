@@ -271,6 +271,8 @@ const state = {
   recipeDraft: [],
   tableSort: "marginCents",
   cardModels: [],
+  selectedDashboardCardKey: "today",
+  dashboardKpiFilter: "all",
   renderContext: null,
   drilldownTab: "today",
   sidebarRestaurantSubOpen: false,
@@ -408,6 +410,11 @@ function wireEvents() {
       renderDashboardDrilldown();
       document.querySelectorAll(".drilldown-tab").forEach((b) => b.classList.toggle("active", b === button));
     });
+  });
+
+  document.getElementById("dashboard-kpi-filter").addEventListener("change", (event) => {
+    state.dashboardKpiFilter = event.target.value;
+    renderDashboardDrilldown();
   });
 
   document.getElementById("mobile-page-select").addEventListener("change", (event) => {
@@ -801,6 +808,7 @@ function syncControls() {
   document.getElementById("revenue-mode").value = state.revenueMode;
   document.getElementById("compare-mode").value = state.compareMode;
   document.getElementById("range-preset-drawer").value = state.rangePreset;
+  document.getElementById("dashboard-kpi-filter").value = state.dashboardKpiFilter;
   document.getElementById("trend-metric-select").value = state.trendMetric;
   document.getElementById("trend-preset-select").value = state.trendGrouping;
   document.getElementById("start-date").value = state.startDate;
@@ -896,11 +904,14 @@ function sidebarActivePage(page) {
 
 function renderPresetCards() {
   state.cardModels = CARD_PRESETS.map(([key, label]) => buildCardModel(key, label));
+  if (!state.cardModels.some((card) => card.key === state.selectedDashboardCardKey)) {
+    state.selectedDashboardCardKey = state.cardModels[0]?.key || "today";
+  }
   const accents = ["#6f86f0", "#8ebdd8", "#7fbfc5", "#86c7b8", "#82be84"];
   document.getElementById("preset-grid").innerHTML = state.cardModels
     .map(
       (card, index) => `
-        <article class="metric-card" style="--card-accent:${accents[index % accents.length]};">
+        <article class="metric-card ${card.key === state.selectedDashboardCardKey ? "active" : ""}" data-card-key="${card.key}" style="--card-accent:${accents[index % accents.length]};">
           <div class="metric-card-head">
             <span class="metric-title">${card.label}</span>
             <span class="metric-date">${card.rangeLabel}</span>
@@ -916,7 +927,7 @@ function renderPresetCards() {
             <div class="metric-stat"><span>Margin %</span><strong>${formatPercent(card.summary.marginPercent)}</strong></div>
           </div>
           <div class="metric-delta">${card.compareText}</div>
-          <button class="metric-more" data-card-key="${card.key}">More</button>
+          <button class="metric-more" data-card-key="${card.key}" type="button">More</button>
         </article>
       `,
     )
@@ -932,29 +943,78 @@ function renderDashboardDrilldown(context) {
   if (!context) return;
   const el = document.getElementById("dashboard-drilldown-content");
   if (!el) return;
+  const selectedContext = buildDashboardSelectedPeriodContext(context);
   const tab = state.drilldownTab;
   const prevMode = state.explorerMode;
   const isLowerRole = ["supervisor", "staff"].includes(state.roleKey);
+  const kpiFilter = state.dashboardKpiFilter;
+  const selectedCard = state.cardModels.find((card) => card.key === state.selectedDashboardCardKey);
+  const periodLabel = selectedCard ? `${selectedCard.label} | ${selectedCard.rangeLabel}` : formatRange(selectedContext.startDate, selectedContext.endDate);
   if (tab === "today") {
     // #379: lower-access roles see only heatmap-relevant KPIs (no financial data)
     if (isLowerRole) {
-      el.innerHTML = buildHeatmapKpiSummaryTable(context.summary);
+      el.innerHTML = buildDashboardTableShell(periodLabel, buildHeatmapKpiSummaryTable(selectedContext.summary));
     } else {
-      el.innerHTML = buildDashboardTable(context.summary, context.comparison.summary);
+      el.innerHTML = buildDashboardTableShell(periodLabel, buildDashboardTable(selectedContext.summary, selectedContext.comparison.summary, kpiFilter));
     }
   } else if (tab === "products") {
     state.explorerMode = "products";
-    el.innerHTML = buildExplorerTable(sortEntityRows(context.productRows, state.tableSort));
+    el.innerHTML = buildDashboardTableShell(periodLabel, buildExplorerTable(sortEntityRows(selectedContext.productRows, metricSortKey(kpiFilter)), kpiFilter));
     state.explorerMode = prevMode;
   } else if (tab === "groups") {
     state.explorerMode = "categories";
-    el.innerHTML = buildExplorerTable(sortEntityRows(context.categoryRows, state.tableSort));
+    el.innerHTML = buildDashboardTableShell(periodLabel, buildExplorerTable(sortEntityRows(selectedContext.categoryRows, metricSortKey(kpiFilter)), kpiFilter));
     state.explorerMode = prevMode;
   } else if (tab === "employees") {
     state.explorerMode = "team";
-    el.innerHTML = buildExplorerTable(sortEntityRows(context.employeeRows, state.tableSort));
+    el.innerHTML = buildDashboardTableShell(periodLabel, buildExplorerTable(sortEntityRows(selectedContext.employeeRows, metricSortKey(kpiFilter)), kpiFilter));
     state.explorerMode = prevMode;
   }
+}
+
+function buildDashboardSelectedPeriodContext(context) {
+  const card = state.cardModels.find((item) => item.key === state.selectedDashboardCardKey) || state.cardModels[0];
+  if (!card || (card.start === state.startDate && card.end === state.endDate)) {
+    return context;
+  }
+  const processed = currentProcessed();
+  const filters = buildFilterState();
+  const productRows = buildProductRows(processed, filters, card.start, card.end);
+  const employeeRows = buildEmployeeRows(processed, filters, card.start, card.end);
+  const summary = card.summary || buildSummaryFromRange(processed, filters, card.start, card.end, { productRows });
+  return {
+    ...context,
+    startDate: card.start,
+    endDate: card.end,
+    summary,
+    comparison: buildComparisonModel(processed, filters, summary, card.start, card.end),
+    productRows,
+    categoryRows: aggregateRowsByKey(productRows, "category"),
+    employeeRows,
+  };
+}
+
+function buildDashboardTableShell(periodLabel, tableMarkup) {
+  return `
+    <div class="dashboard-table-meta">
+      <span>Selected period</span>
+      <strong>${periodLabel}</strong>
+    </div>
+    ${tableMarkup}
+  `;
+}
+
+function metricSortKey(metric) {
+  return {
+    all: state.tableSort,
+    units: "units",
+    revenue: "grossRevenueCents",
+    foodCost: "foodCostCents",
+    staffCost: "staffCostCents",
+    margin: "marginCents",
+    marginPercent: "marginCents",
+    cancelled: "canceledUnits",
+  }[metric] || state.tableSort;
 }
 
 function buildHeatmapKpiSummaryTable(summary) {
@@ -1337,7 +1397,8 @@ function groupKpiItems(items) {
     .filter((group) => group.items.length);
 }
 
-function buildDashboardTable(summary, compareSummary) {
+function buildDashboardTable(summary, compareSummary, kpiFilter = "all") {
+  const rows = filterDashboardKpiRows(keyKpiItems(summary, compareSummary, true), kpiFilter);
   return `
     <table>
       <thead>
@@ -1350,11 +1411,11 @@ function buildDashboardTable(summary, compareSummary) {
         </tr>
       </thead>
       <tbody>
-        ${keyKpiItems(summary, compareSummary, true)
+        ${rows
           .map(
             (item) => `
               <tr>
-                <td><strong>${item.label}</strong></td>
+                <td><div class="kpi-table-label">${kpiIconMarkup(item.metricGroup)}<strong>${item.label}</strong></div></td>
                 <td>${item.value}</td>
                 <td>${item.compareValue}</td>
                 <td class="${item.deltaClass}">${item.delta}</td>
@@ -1366,6 +1427,26 @@ function buildDashboardTable(summary, compareSummary) {
       </tbody>
     </table>
   `;
+}
+
+function filterDashboardKpiRows(rows, kpiFilter) {
+  if (kpiFilter === "all") {
+    return rows;
+  }
+  return rows.filter((row) => row.metricGroup === kpiFilter);
+}
+
+function kpiIconMarkup(group) {
+  const icons = {
+    units: `<path d="M4 8l8-4 8 4-8 4-8-4Z"></path><path d="M4 8v8l8 4 8-4V8"></path>`,
+    revenue: `<path d="M12 4v16"></path><path d="M7 8.5a4 4 0 0 1 5-2.5c2.5.6 4.5.6 4.5 3 0 4-9 1.5-9 5.5 0 2.5 2.5 3.5 5 3.5 2 0 3.8-.7 4.8-2"></path>`,
+    foodCost: `<path d="M6 4v8a6 6 0 0 0 12 0V4"></path><path d="M6 9h12"></path>`,
+    staffCost: `<circle cx="9" cy="8" r="3"></circle><path d="M4.5 19a4.5 4.5 0 0 1 9 0"></path><circle cx="17" cy="9.5" r="2.25"></circle>`,
+    margin: `<path d="M4 17l5-5 4 3 7-8"></path><path d="M15 7h5v5"></path>`,
+    marginPercent: `<circle cx="8" cy="8" r="2"></circle><circle cx="16" cy="16" r="2"></circle><path d="M17 7L7 17"></path>`,
+    cancelled: `<path d="M5 5l14 14"></path><path d="M19 5L5 19"></path>`,
+  };
+  return `<span class="kpi-table-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${icons[group] || icons.revenue}</svg></span>`;
 }
 
 function buildExplorerSummary(context, rows) {
@@ -1435,17 +1516,13 @@ function buildExplorerHighlight(context) {
     .join("");
 }
 
-function buildExplorerTable(rows) {
+function buildExplorerTable(rows, kpiFilter = "all") {
   if (!rows.length) {
     return "<table><thead><tr><th>Result</th></tr></thead><tbody><tr><td>No rows match the current filters.</td></tr></tbody></table>";
   }
 
-  const headers =
-    state.explorerMode === "team"
-      ? ["Employee", "Group", "Employee No.", "Units", "Revenue", "Food Cost", "Staff Cost", "Margin", "Hide"]
-      : state.explorerMode === "categories"
-        ? ["Product Group", "Units", "Revenue", "Food Cost", "Staff Cost", "Custom Cost", "Margin", "Margin %", "Hide"]
-        : ["Product", "Article No.", "Product Group", "Units", "Cancelled", "Revenue", "Food Cost", "Margin", "Hide"];
+  const mode = state.explorerMode;
+  const headers = explorerHeadersForMode(mode, kpiFilter);
 
   return `
     <table>
@@ -1461,24 +1538,9 @@ function buildExplorerTable(rows) {
             return `
               <tr>
                 <td>
-                  <div class="entity-cell">
-                    <div class="rank-pill">${index + 1}</div>
-                    <div>
-                      <strong>${row.name}</strong>
-                      <div class="entity-subtitle">${state.explorerMode === "team" ? row.group || "-" : row.category || "Product group"}</div>
-                    </div>
-                  </div>
+                  ${entityCellMarkup(row, index, mode)}
                 </td>
-                ${state.explorerMode === "team" ? `<td>${row.group || "-"}</td><td>${row.employeeNumber || "-"}</td>` : ""}
-                ${state.explorerMode === "products" ? `<td>${row.articleNumber || "-"}</td><td>${row.category || "-"}</td>` : ""}
-                <td>${numberFormatter.format(Math.round(row.units || 0))}</td>
-                ${state.explorerMode === "products" ? `<td class="value-negative">${numberFormatter.format(Math.round(row.canceledUnits || 0))}</td>` : ""}
-                <td class="value-positive">${formatDisplayRevenue(row)}</td>
-                <td>${formatCurrency(row.foodCostCents || 0)}</td>
-                ${state.explorerMode !== "products" ? `<td>${formatCurrency(row.staffCostCents || 0)}</td>` : ""}
-                ${state.explorerMode === "categories" ? `<td>${formatCurrency(row.customCostCents || 0)}</td>` : ""}
-                <td class="${row.marginCents >= 0 ? "value-positive" : "value-negative"}">${formatCurrency(row.marginCents || 0)}</td>
-                ${state.explorerMode === "categories" ? `<td>${formatPercent(row.netRevenueCents ? row.marginCents / row.netRevenueCents : 0)}</td>` : ""}
+                ${explorerCellsForMode(row, mode, kpiFilter)}
                 <td>${hideCell}</td>
               </tr>
             `;
@@ -1486,6 +1548,75 @@ function buildExplorerTable(rows) {
           .join("")}
       </tbody>
     </table>
+  `;
+}
+
+function explorerHeadersForMode(mode, kpiFilter) {
+  const entityHeader = mode === "team" ? "Employee" : mode === "categories" ? "Product Group" : "Product";
+  const identityHeaders = mode === "team" ? ["Group", "Employee No."] : mode === "products" ? ["Article No.", "Product Group"] : [];
+  return [entityHeader, ...identityHeaders, ...explorerMetricColumns(mode, kpiFilter).map((item) => item.label), "Hide"];
+}
+
+function explorerCellsForMode(row, mode, kpiFilter) {
+  const identityCells =
+    mode === "team"
+      ? `<td>${row.group || "-"}</td><td>${row.employeeNumber || "-"}</td>`
+      : mode === "products"
+        ? `<td>${row.articleNumber || "-"}</td><td>${row.category || "-"}</td>`
+        : "";
+  return `${identityCells}${explorerMetricColumns(mode, kpiFilter).map((column) => column.render(row)).join("")}`;
+}
+
+function explorerMetricColumns(mode, kpiFilter) {
+  const marginPercent = (row) => formatPercent(row.netRevenueCents ? row.marginCents / row.netRevenueCents : 0);
+  const allColumns = [
+    { key: "units", label: "Units", render: (row) => `<td>${numberFormatter.format(Math.round(row.units || 0))}</td>` },
+    ...(mode === "products" ? [{ key: "cancelled", label: "Cancelled", render: (row) => `<td class="value-negative">${numberFormatter.format(Math.round(row.canceledUnits || 0))}</td>` }] : []),
+    { key: "revenue", label: "Revenue", render: (row) => `<td class="value-positive">${formatDisplayRevenue(row)}</td>` },
+    { key: "foodCost", label: "Food Cost", render: (row) => `<td>${formatCurrency(row.foodCostCents || 0)}</td>` },
+    ...(mode !== "products" ? [{ key: "staffCost", label: "Staff Cost", render: (row) => `<td>${formatCurrency(row.staffCostCents || 0)}</td>` }] : []),
+    ...(mode === "categories" ? [{ key: "customCost", label: "Custom Cost", render: (row) => `<td>${formatCurrency(row.customCostCents || 0)}</td>` }] : []),
+    { key: "margin", label: "Margin", render: (row) => `<td class="${row.marginCents >= 0 ? "value-positive" : "value-negative"}">${formatCurrency(row.marginCents || 0)}</td>` },
+    ...(mode === "categories" ? [{ key: "marginPercent", label: "Margin %", render: (row) => `<td>${marginPercent(row)}</td>` }] : []),
+  ];
+  if (kpiFilter === "all") {
+    return allColumns;
+  }
+  const selectedColumns = allColumns.filter((column) => column.key === kpiFilter);
+  if (selectedColumns.length) {
+    return selectedColumns;
+  }
+  const fallbackColumns = {
+    cancelled: { key: "cancelled", label: "Cancelled", render: (row) => `<td class="value-negative">${numberFormatter.format(Math.round(row.canceledUnits || 0))}</td>` },
+    staffCost: { key: "staffCost", label: "Staff Cost", render: (row) => `<td>${formatCurrency(row.staffCostCents || 0)}</td>` },
+    marginPercent: { key: "marginPercent", label: "Margin %", render: (row) => `<td>${marginPercent(row)}</td>` },
+  };
+  return fallbackColumns[kpiFilter] ? [fallbackColumns[kpiFilter]] : allColumns;
+}
+
+function entityCellMarkup(row, index, mode) {
+  return `
+    <div class="entity-cell">
+      <div class="rank-pill">${index + 1}</div>
+      ${entityIconMarkup(mode)}
+      <div>
+        <strong>${escapeHtml(row.name)}</strong>
+        <div class="entity-subtitle">${escapeHtml(mode === "team" ? row.group || "-" : row.category || "Product group")}</div>
+      </div>
+    </div>
+  `;
+}
+
+function entityIconMarkup(mode) {
+  const icons = {
+    products: `<path d="M4 8l8-4 8 4-8 4-8-4Z"></path><path d="M4 8v8l8 4 8-4V8"></path><path d="M12 12v8"></path>`,
+    categories: `<rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect>`,
+    team: `<circle cx="9" cy="8" r="3"></circle><path d="M4.5 19a4.5 4.5 0 0 1 9 0"></path><circle cx="17" cy="9.5" r="2.25"></circle><path d="M14.5 18.5a3.6 3.6 0 0 1 5 0"></path>`,
+  };
+  return `
+    <span class="entity-icon entity-icon-${mode}" aria-hidden="true">
+      <svg viewBox="0 0 24 24">${icons[mode] || icons.products}</svg>
+    </span>
   `;
 }
 
@@ -2328,6 +2459,18 @@ function wireDetailEvents() {
   });
 
   document.getElementById("preset-grid").addEventListener("click", (event) => {
+    const moreButton = event.target.closest(".metric-more[data-card-key]");
+    if (moreButton) {
+      openKpiModal(moreButton.dataset.cardKey);
+      return;
+    }
+    const card = event.target.closest(".metric-card[data-card-key]");
+    if (card) {
+      state.selectedDashboardCardKey = card.dataset.cardKey;
+      renderPresetCards();
+      renderDashboardDrilldown();
+      return;
+    }
     const button = event.target.closest("[data-card-key]");
     if (button) {
       openKpiModal(button.dataset.cardKey);
@@ -2663,8 +2806,19 @@ function kpiRow(label, value, compareValueText, delta, note) {
     compareValue: compareValueText,
     delta,
     note,
+    metricGroup: inferKpiGroup(label),
     deltaClass: delta.startsWith("-") ? "value-negative" : "value-positive",
   };
+}
+
+function inferKpiGroup(label) {
+  const normalized = label.toLowerCase();
+  if (normalized.includes("cancel")) return "cancelled";
+  if (normalized.includes("item") || normalized.includes("table") || normalized.includes("guest")) return "units";
+  if (normalized.includes("food cost")) return "foodCost";
+  if (normalized.includes("staff") || normalized.includes("employee") || normalized.includes("labour")) return "staffCost";
+  if (normalized.includes("margin") || normalized.includes("contribution")) return normalized.includes("%") ? "marginPercent" : "margin";
+  return "revenue";
 }
 
 function compareValue(summary, key) {

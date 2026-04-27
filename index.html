@@ -421,10 +421,25 @@
             </div>
 
             <div class="dashboard-drilldown-bar">
-              <button class="drilldown-tab active" data-drilldown="today">Today</button>
-              <button class="drilldown-tab" data-drilldown="products">Products</button>
-              <button class="drilldown-tab" data-drilldown="groups">Product Groups</button>
-              <button class="drilldown-tab" data-drilldown="employees">Employees</button>
+              <div class="drilldown-tabs">
+                <button class="drilldown-tab active" data-drilldown="today">Today</button>
+                <button class="drilldown-tab" data-drilldown="products">Products</button>
+                <button class="drilldown-tab" data-drilldown="groups">Product Groups</button>
+                <button class="drilldown-tab" data-drilldown="employees">Employees</button>
+              </div>
+              <label class="drilldown-kpi-filter">
+                <span>KPI</span>
+                <select id="dashboard-kpi-filter">
+                  <option value="all">All KPIs</option>
+                  <option value="units">Units</option>
+                  <option value="revenue">Revenue</option>
+                  <option value="foodCost">Food Cost</option>
+                  <option value="staffCost">Staff Cost</option>
+                  <option value="margin">Margin</option>
+                  <option value="marginPercent">Margin %</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </label>
             </div>
             <div id="dashboard-drilldown-content" class="table-shell"></div>
 
