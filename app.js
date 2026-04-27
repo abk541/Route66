@@ -375,7 +375,9 @@ function wireEvents() {
     if (window.innerWidth <= 767) {
       document.body.classList.toggle("sidebar-open");
     } else {
-      document.body.classList.toggle("sidebar-collapsed");
+      const willPin = !document.body.classList.contains("sidebar-pinned");
+      document.body.classList.toggle("sidebar-pinned", willPin);
+      document.body.classList.toggle("sidebar-collapsed", !willPin);
     }
   });
 
