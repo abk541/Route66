@@ -1814,12 +1814,27 @@ body[data-theme="light"] .sidebar {
 
 .sidebar-restaurant-toggle {
   position: relative;
+  min-height: 48px;
+  margin: 8px 0 6px;
+  padding: 6px 8px;
+  border: 1px solid #232832;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #181c24, #141820);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   cursor: pointer;
 }
 
 .sidebar-restaurant-toggle:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, #1d2230, #161b25);
+  border-color: #2c3545;
   color: #8fa3ff;
+}
+
+.sidebar-restaurant-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .sidebar-restaurant-native {
@@ -1829,16 +1844,38 @@ body[data-theme="light"] .sidebar {
   height: 100%;
   opacity: 0;
   cursor: pointer;
+  z-index: 2;
 }
 
 .sidebar-restaurant-current {
-  margin: -2px 4px 6px 31px;
-  color: #c8cede;
-  font-size: 0.74rem;
+  display: block;
+  margin: 0;
+  color: #e8eaf0;
+  font-size: 0.76rem;
+  font-weight: 600;
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sidebar-restaurant-toggle .sidebar-section-text {
+  color: #8fa3ff;
+  font-size: 0.64rem;
+}
+
+.sidebar-restaurant-toggle .sidebar-section-icon,
+.sidebar-restaurant-toggle .sidebar-section-caret {
+  color: #7f8b9e;
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-restaurant-toggle .sidebar-restaurant-copy {
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar-link {
@@ -2772,6 +2809,7 @@ body.sidebar-collapsed .sidebar-link-caret,
 body.sidebar-collapsed .sidebar-sub-nav,
 body.sidebar-collapsed .sidebar-restaurant-select,
 body.sidebar-collapsed .sidebar-restaurant-current,
+body.sidebar-collapsed .sidebar-restaurant-copy,
 body.sidebar-collapsed .sidebar-utilities,
 body.sidebar-collapsed .sidebar-footer-nav > .sidebar-link > span:not(.sidebar-link-icon) {
   display: none;
@@ -3524,6 +3562,10 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-restaurant-c
   display: block;
 }
 
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-restaurant-copy {
+  display: grid;
+}
+
 body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-utilities {
   display: grid;
 }
@@ -3536,6 +3578,10 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-section-togg
 
 body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-section-toggle {
   padding: 0 8px;
+}
+
+body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-restaurant-toggle {
+  padding: 6px 8px;
 }
 
 body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon {
@@ -3599,6 +3645,10 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon {
     display: block;
   }
 
+  body.sidebar-collapsed.sidebar-open .sidebar-restaurant-copy {
+    display: grid;
+  }
+
   body.sidebar-collapsed.sidebar-open .sidebar-utilities {
     display: grid;
   }
@@ -3611,5 +3661,9 @@ body.sidebar-collapsed:not(.sidebar-pinned) .sidebar:hover .sidebar-link-icon {
 
   body.sidebar-collapsed.sidebar-open .sidebar-section-toggle {
     padding: 0 8px;
+  }
+
+  body.sidebar-collapsed.sidebar-open .sidebar-restaurant-toggle {
+    padding: 6px 8px;
   }
 }
